@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 
-class SignUpForm extends StatelessWidget {
-  const SignUpForm({super.key});
+class SignInForm extends StatelessWidget {
+  const SignInForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,22 +14,14 @@ class SignUpForm extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Create an account',
+            'SignIn to your account',
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           verticalSpace(100.0),
           TextFormField(
             decoration: const InputDecoration(
-              icon: Icon(Icons.person),
-              hintText: 'What do people call you?',
-              labelText: 'Name *',
-            ),
-            // validator: (String? value) {},
-          ),
-          TextFormField(
-            decoration: const InputDecoration(
               icon: Icon(Icons.mail),
-              hintText: 'What\'s your email address?',
+              hintText: 'Enter your email',
               labelText: 'Email *',
             ),
             // validator: (String? value) {},
@@ -42,20 +34,12 @@ class SignUpForm extends StatelessWidget {
             obscureText: true,
             // validator: (String? value) {},
           ),
-          TextFormField(
-            decoration: const InputDecoration(
-                icon: Icon(Icons.lock),
-                hintText: 'Confirm your password',
-                labelText: 'Password confirmation *'),
-            obscureText: true,
-            // validator: (String? value) {},
-          ),
           verticalSpace(100.0),
           ElevatedButton(
             onPressed: () {
-              print('Creating account...');
+              print('Sign In');
             },
-            child: const Text('Create Account'),
+            child: const Text('Sign In'),
           ),
         ],
       ),

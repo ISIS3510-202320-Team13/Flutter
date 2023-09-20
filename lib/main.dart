@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parkez/ui/auth/auth_screen.dart';
+import 'package:parkez/ui/theme/theme_constants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,11 +13,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
+      theme: lightTheme,
       home: const LandingScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
