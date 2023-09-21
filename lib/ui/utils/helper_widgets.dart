@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
 Widget verticalSpace(double height) {
@@ -12,16 +14,19 @@ Widget horizontalSpace(double width) {
   );
 }
 
-AppBar appBar(BuildContext context, String title) {
+AppBar appBar(BuildContext context, String title, {bool backButton = true}) {
   return AppBar(
     title: Text(title),
     centerTitle: true,
-    leading: IconButton(
-      onPressed: () => Navigator.of(context).pop(),
-      icon: Icon(
-        Icons.arrow_back,
-        color: Theme.of(context).floatingActionButtonTheme.foregroundColor,
-      ),
-    ),
+    leading: backButton
+        ? IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: Icon(
+              Icons.arrow_back,
+              color:
+                  Theme.of(context).floatingActionButtonTheme.foregroundColor,
+            ),
+          )
+        : null,
   );
 }
