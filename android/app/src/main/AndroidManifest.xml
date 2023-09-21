@@ -3,6 +3,11 @@
         android:label="parkez"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- TODO: Add your Google Maps API key here -->
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBOQ8w5nz5xMdsI_8SVL4q-hfDE_uMTP5U"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
