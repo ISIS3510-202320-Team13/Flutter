@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parkez/ui/client/home/home_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 import 'package:parkez/ui/home/home_page.dart';
@@ -45,7 +46,11 @@ class SignInForm extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
+<<<<<<< HEAD
                   builder: (context) => HomePage(),
+=======
+                  builder: (context) => const ClientHomeScreen(),
+>>>>>>> 5f83554 (Enhance stepper and connect with View Flow)
                 ),
               );
             },

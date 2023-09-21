@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parkez/ui/client/home/home_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 
@@ -54,6 +55,15 @@ class SignUpForm extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               print('Creating account...');
+              // TODO: Remove chambonada of pop twice
+              Navigator.pop(context);
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ClientHomeScreen(),
+                ),
+              );
             },
             child: const Text('Create Account'),
           ),

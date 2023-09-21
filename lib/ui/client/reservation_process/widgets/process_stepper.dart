@@ -30,11 +30,6 @@ class _ProcessStepperState extends State<ProcessStepper> {
           });
         }
       },
-      onStepTapped: (int index) {
-        setState(() {
-          _index = index;
-        });
-      },
       steps: <Step>[
         Step(
           isActive: _index == 0,
