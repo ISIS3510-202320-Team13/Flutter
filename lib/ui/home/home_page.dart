@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomePage extends StatelessWidget {
-
   late GoogleMapController mapController;
   final LatLng _center = const LatLng(4.602796, -74.065841);
+
+  HomePage({super.key});
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -25,10 +26,8 @@ class HomePage extends StatelessWidget {
           body: GoogleMap(
             zoomControlsEnabled: false,
             onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: _center,
-              zoom: 18.0,
-            ),
+            initialCameraPosition:
+                CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
         ),
         fastActionMenu(colorB1: colorB1),
@@ -70,16 +69,21 @@ class ubicationCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    textFastActions(texto: "Cra. 1 #22-37, Bogotá", colorB1: colorB1, tamanioFuente: 15),
-                    textFastActions(texto: "25 puestos disponibles", colorB1: colorB2, tamanioFuente: 12),
+                    textFastActions(
+                        texto: "Cra. 1 #22-37, Bogotá",
+                        colorB1: colorB1,
+                        tamanioFuente: 15),
+                    textFastActions(
+                        texto: "25 puestos disponibles",
+                        colorB1: colorB2,
+                        tamanioFuente: 12),
                   ],
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(30, 0, 5, 0),
                   child: Container(
                     alignment: Alignment.centerRight,
-                    child:
-                    Image.asset('assets/cuadrito.png', scale: 1.2),
+                    child: Image.asset('assets/cuadrito.png', scale: 1.2),
                   ),
                 ),
               ],
@@ -124,25 +128,35 @@ class fastActionMenu extends StatelessWidget {
                   Column(
                     children: [
                       iconButon(colorB1: colorB1, buscar: Icons.search),
-                      textFastActions(texto: "Buscar", colorB1: colorB1, tamanioFuente: 12),
+                      textFastActions(
+                          texto: "Buscar", colorB1: colorB1, tamanioFuente: 12),
                     ],
                   ),
                   Column(
                     children: [
                       iconButon(colorB1: colorB1, buscar: Icons.work),
-                      textFastActions(texto: "Trabajo", colorB1: colorB1, tamanioFuente: 12),
+                      textFastActions(
+                          texto: "Trabajo",
+                          colorB1: colorB1,
+                          tamanioFuente: 12),
                     ],
                   ),
                   Column(
                     children: [
                       iconButon(colorB1: colorB1, buscar: Icons.favorite),
-                      textFastActions(texto: "Favoritos", colorB1: colorB1, tamanioFuente: 12),
+                      textFastActions(
+                          texto: "Favoritos",
+                          colorB1: colorB1,
+                          tamanioFuente: 12),
                     ],
                   ),
                   Column(
                     children: [
                       iconButon(colorB1: colorB1, buscar: Icons.people),
-                      textFastActions(texto: "Recomendados", colorB1: colorB1, tamanioFuente: 12),
+                      textFastActions(
+                          texto: "Recomendados",
+                          colorB1: colorB1,
+                          tamanioFuente: 12),
                     ],
                   ),
                 ],
@@ -192,19 +206,31 @@ class iconButon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color colorB3 = Color(int.parse("40A6FF", radix: 16) + 0xFF000000);
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(width: 2, color: colorB1),
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: SizedBox(
-            width: 60.0,
-            height: 60.0,
-            child: Icon(buscar, color: colorB1,)),
-      ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(width: 2, color: colorB1),
+            borderRadius: BorderRadius.circular(100),
+          ),
+          child: ClipOval(
+            child: Material(
+              color: Colors.white, // Button color
+              child: InkWell(
+                splashColor: Colors.lightBlueAccent, // Splash color
+                onTap: () {},
+                child: SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: Icon(
+                      buscar,
+                      color: colorB1,
+                    )),
+              ),
+            ),
+          )),
     );
   }
 }
