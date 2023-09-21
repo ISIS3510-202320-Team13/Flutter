@@ -11,3 +11,17 @@ Widget horizontalSpace(double width) {
     width: width,
   );
 }
+
+AppBar appBar(BuildContext context, String title) {
+  return AppBar(
+    title: Text(title),
+    centerTitle: true,
+    leading: IconButton(
+      onPressed: () => Navigator.of(context).pop(),
+      icon: Icon(
+        Icons.arrow_back,
+        color: Theme.of(context).floatingActionButtonTheme.foregroundColor,
+      ),
+    ),
+  );
+}
