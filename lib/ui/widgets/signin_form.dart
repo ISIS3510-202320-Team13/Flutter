@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
+import 'package:parkez/ui/home/home_page.dart';
 
 class SignInForm extends StatelessWidget {
   const SignInForm({super.key});
@@ -38,6 +39,15 @@ class SignInForm extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               print('Sign In');
+              // TODO: Remove chambonada of pop twice
+              Navigator.pop(context);
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
             },
             child: const Text('Sign In'),
           ),
