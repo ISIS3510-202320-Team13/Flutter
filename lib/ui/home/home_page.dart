@@ -236,7 +236,7 @@ class iconButon extends StatelessWidget {
                     height: 56,
                     child: Icon(
                       buscar,
-                      color: colorY1,
+                      color: colorB1,
                     )),
               ),
             ),
