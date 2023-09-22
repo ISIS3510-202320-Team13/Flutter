@@ -19,6 +19,9 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     Color colorB1 = Color(int.parse("0961AD", radix: 16) + 0xFF000000);
     Color colorB2 = Color(int.parse("2597FA", radix: 16) + 0xFF000000);
+    Color colorB3 = Color(int.parse("40A6FF", radix: 16) + 0xFF000000);
+
+    Color colorY1 = Color(int.parse("B89865", radix: 16) + 0xFF000000);
 
     return Stack(
       children: [
@@ -30,7 +33,7 @@ class HomePage extends StatelessWidget {
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
         ),
-        fastActionMenu(colorB1: colorB1),
+        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
         ubicationCard(colorB1: colorB1, colorB2: colorB2),
       ],
     );
@@ -99,9 +102,13 @@ class fastActionMenu extends StatelessWidget {
   const fastActionMenu({
     super.key,
     required this.colorB1,
+    required this.colorB3,
+    required this.colorY1,
   });
 
   final Color colorB1;
+  final Color colorB3;
+  final Color colorY1;
 
   @override
   Widget build(BuildContext context) {
@@ -127,14 +134,14 @@ class fastActionMenu extends StatelessWidget {
                 children: [
                   Column(
                     children: [
-                      iconButon(colorB1: colorB1, buscar: Icons.search),
+                      iconButon(colorB1: colorB1, buscar: Icons.search, colorB3: colorB3, colorY1: colorY1),
                       textFastActions(
                           texto: "Buscar", colorB1: colorB1, tamanioFuente: 12),
                     ],
                   ),
                   Column(
                     children: [
-                      iconButon(colorB1: colorB1, buscar: Icons.work),
+                      iconButon(colorB1: colorB1, buscar: Icons.work, colorB3: colorB3, colorY1: colorY1),
                       textFastActions(
                           texto: "Trabajo",
                           colorB1: colorB1,
@@ -143,7 +150,7 @@ class fastActionMenu extends StatelessWidget {
                   ),
                   Column(
                     children: [
-                      iconButon(colorB1: colorB1, buscar: Icons.favorite),
+                      iconButon(colorB1: colorB1, buscar: Icons.star, colorB3: colorB3, colorY1: colorY1),
                       textFastActions(
                           texto: "Favoritos",
                           colorB1: colorB1,
@@ -152,7 +159,7 @@ class fastActionMenu extends StatelessWidget {
                   ),
                   Column(
                     children: [
-                      iconButon(colorB1: colorB1, buscar: Icons.people),
+                      iconButon(colorB1: colorB1, buscar: Icons.people, colorB3: colorB3, colorY1: colorY1),
                       textFastActions(
                           texto: "Recomendados",
                           colorB1: colorB1,
@@ -199,14 +206,17 @@ class iconButon extends StatelessWidget {
     super.key,
     required this.colorB1,
     required this.buscar,
+    required this.colorB3,
+    required this.colorY1,
   });
 
   final Color colorB1;
   final IconData buscar;
+  final Color colorB3;
+  final Color colorY1;
 
   @override
   Widget build(BuildContext context) {
-    Color colorB3 = Color(int.parse("40A6FF", radix: 16) + 0xFF000000);
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
       child: Container(
@@ -219,14 +229,14 @@ class iconButon extends StatelessWidget {
             child: Material(
               color: Colors.white, // Button color
               child: InkWell(
-                splashColor: Colors.lightBlueAccent, // Splash color
+                splashColor: colorB3, // Splash color
                 onTap: () {},
                 child: SizedBox(
                     width: 56,
                     height: 56,
                     child: Icon(
                       buscar,
-                      color: colorB1,
+                      color: colorY1,
                     )),
               ),
             ),
