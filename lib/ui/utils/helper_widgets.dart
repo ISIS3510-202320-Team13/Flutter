@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
 Widget verticalSpace(double height) {
@@ -28,5 +26,15 @@ AppBar appBar(BuildContext context, String title, {bool backButton = true}) {
             ),
           )
         : null,
+  );
+}
+
+Row itemDefinition(String name, String definition) {
+  return Row(
+    children: [
+      Text("$name: ", style: const TextStyle(fontWeight: FontWeight.bold)),
+      horizontalSpace(5.0),
+      Text(definition)
+    ],
   );
 }

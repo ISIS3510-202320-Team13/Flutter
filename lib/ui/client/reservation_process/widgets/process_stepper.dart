@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'payment_view.dart';
+
 class ProcessStepper extends StatefulWidget {
   const ProcessStepper({super.key});
 
@@ -53,7 +55,8 @@ class _ProcessStepperState extends State<ProcessStepper> {
           isActive: _index == 3,
           // label: const Text('Checkout'),
           title: const Text(''),
-          content: Center(child: const Text('Checkout')),
+          // content: Center(child: const Text('Checkout')),
+          content: Container(child: PaymentView()),
         ),
       ],
     );
