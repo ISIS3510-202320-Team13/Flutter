@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parkez/ui/theme/theme_constants.dart';
 
 class HomePage extends StatelessWidget {
   late GoogleMapController mapController;
@@ -17,11 +18,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color colorB1 = Color(int.parse("0961AD", radix: 16) + 0xFF000000);
-    Color colorB2 = Color(int.parse("2597FA", radix: 16) + 0xFF000000);
-    Color colorB3 = Color(int.parse("40A6FF", radix: 16) + 0xFF000000);
-
-    Color colorY1 = Color(int.parse("B89865", radix: 16) + 0xFF000000);
 
     return Stack(
       children: [
