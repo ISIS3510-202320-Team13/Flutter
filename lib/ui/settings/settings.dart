@@ -68,7 +68,7 @@ class _settingsState extends State<settings> with SingleTickerProviderStateMixin
       ElevatedButton(
         onPressed: () {
         },
-        child: const Text('Sing Out'),
+        child: const Text('Sign Out'),
       ),
       ],
     ),
