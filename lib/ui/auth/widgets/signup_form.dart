@@ -33,6 +33,7 @@ class SignUpForm extends StatelessWidget {
               hintText: 'What\'s your email address?',
               labelText: 'Email *',
             ),
+            keyboardType: TextInputType.emailAddress,
             // validator: (String? value) {},
           ),
           TextFormField(
@@ -41,6 +42,7 @@ class SignUpForm extends StatelessWidget {
                 hintText: 'Enter your password',
                 labelText: 'Password *'),
             obscureText: true,
+            keyboardType: TextInputType.visiblePassword,
             // validator: (String? value) {},
           ),
           TextFormField(
@@ -49,6 +51,7 @@ class SignUpForm extends StatelessWidget {
                 hintText: 'Confirm your password',
                 labelText: 'Password confirmation *'),
             obscureText: true,
+            keyboardType: TextInputType.visiblePassword,
             // validator: (String? value) {},
           ),
           verticalSpace(100.0),

@@ -51,7 +51,7 @@ class SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(context, 'Sign Up'),
-      body: SignUpForm(),
+      body: const SignUpForm(),
     );
   }
 }
@@ -63,7 +63,7 @@ class SignInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(context, 'Sign In'),
-      body: SignInForm(),
+      body: const SignInForm(),
     );
   }
 }

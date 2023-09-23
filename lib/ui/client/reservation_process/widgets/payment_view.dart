@@ -56,7 +56,7 @@ class PaymentView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Icon(Icons.calendar_month),
+                    const Icon(Icons.payment),
                     horizontalSpace(60.0),
                     Text(
                       'Payment Details',

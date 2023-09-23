@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parkez/ui/client/reservation_process/widgets/checkout_view.dart';
 
 import 'payment_view.dart';
 
@@ -49,7 +50,7 @@ class _ProcessStepperState extends State<ProcessStepper> {
           isActive: _index == 2,
           // label: const Text('Payment'),
           title: const Text(''),
-          content: Center(child: const Text('Payment')),
+          content: Container(child: CheckoutView()),
         ),
         Step(
           isActive: _index == 3,
