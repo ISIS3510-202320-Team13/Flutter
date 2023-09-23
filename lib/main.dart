@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parkez/ui/auth/auth_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
-import 'package:parkez/ui/profile/profile.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -14,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: lightTheme,
-      home: const profile(),
+      home: const LandingScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
