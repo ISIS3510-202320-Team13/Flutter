@@ -27,7 +27,6 @@ class SignInForm extends StatelessWidget {
               labelText: 'Email *',
             ),
             // validator: (String? value) {},
-            keyboardType: TextInputType.emailAddress,
           ),
           TextFormField(
             decoration: const InputDecoration(
@@ -35,7 +34,6 @@ class SignInForm extends StatelessWidget {
                 hintText: 'Enter your password',
                 labelText: 'Password *'),
             obscureText: true,
-            keyboardType: TextInputType.visiblePassword,
             // validator: (String? value) {},
           ),
           verticalSpace(100.0),
@@ -48,11 +46,7 @@ class SignInForm extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-<<<<<<< HEAD
                   builder: (context) => HomePage(),
-=======
-                  builder: (context) => const ClientHomeScreen(),
->>>>>>> 5f83554 (Enhance stepper and connect with View Flow)
                 ),
               );
             },
