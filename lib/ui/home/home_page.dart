@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 
 class HomePage extends StatelessWidget {
@@ -18,7 +19,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Stack(
       children: [
         Scaffold(
@@ -130,14 +130,22 @@ class fastActionMenu extends StatelessWidget {
                 children: [
                   Column(
                     children: [
-                      iconButon(colorB1: colorB1, buscar: Icons.search, colorB3: colorB3, colorY1: colorY1),
+                      iconButon(
+                          colorB1: colorB1,
+                          buscar: Icons.search,
+                          colorB3: colorB3,
+                          colorY1: colorY1),
                       textFastActions(
                           texto: "Buscar", colorB1: colorB1, tamanioFuente: 12),
                     ],
                   ),
                   Column(
                     children: [
-                      iconButon(colorB1: colorB1, buscar: Icons.work, colorB3: colorB3, colorY1: colorY1),
+                      iconButon(
+                          colorB1: colorB1,
+                          buscar: Icons.work,
+                          colorB3: colorB3,
+                          colorY1: colorY1),
                       textFastActions(
                           texto: "Trabajo",
                           colorB1: colorB1,
@@ -146,7 +154,11 @@ class fastActionMenu extends StatelessWidget {
                   ),
                   Column(
                     children: [
-                      iconButon(colorB1: colorB1, buscar: Icons.star, colorB3: colorB3, colorY1: colorY1),
+                      iconButon(
+                          colorB1: colorB1,
+                          buscar: Icons.star,
+                          colorB3: colorB3,
+                          colorY1: colorY1),
                       textFastActions(
                           texto: "Favoritos",
                           colorB1: colorB1,
@@ -155,7 +167,11 @@ class fastActionMenu extends StatelessWidget {
                   ),
                   Column(
                     children: [
-                      iconButon(colorB1: colorB1, buscar: Icons.people, colorB3: colorB3, colorY1: colorY1),
+                      iconButon(
+                          colorB1: colorB1,
+                          buscar: Icons.people,
+                          colorB3: colorB3,
+                          colorY1: colorY1),
                       textFastActions(
                           texto: "Recomendados",
                           colorB1: colorB1,
@@ -226,7 +242,13 @@ class iconButon extends StatelessWidget {
               color: Colors.white, // Button color
               child: InkWell(
                 splashColor: colorB3, // Splash color
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ReservationProcessScreen(),
+                    ),
+                  );
+                },
                 child: SizedBox(
                     width: 56,
                     height: 56,

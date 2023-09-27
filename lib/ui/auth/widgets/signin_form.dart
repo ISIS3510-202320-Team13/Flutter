@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:parkez/ui/client/home/home_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 import 'package:parkez/ui/home/home_page.dart';
