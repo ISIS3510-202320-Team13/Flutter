@@ -4,6 +4,8 @@ import 'package:parkez/ui/utils/helper_widgets.dart';
 import 'package:parkez/ui/auth/widgets/signin_form.dart';
 import 'package:parkez/ui/auth/widgets/signup_form.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
 
