@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parkez/ui/home/home_page.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 import 'package:parkez/ui/auth/widgets/signin_form.dart';
@@ -63,9 +64,19 @@ class SignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar(context, 'Sign In'),
-      body: const SignInForm(),
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Something went wrong!'));
+        } else if (snapshot.hasData) {
+          return HomePage();
+        } else {
+          return SignInForm();
+        }
+      },
     );
   }
 }

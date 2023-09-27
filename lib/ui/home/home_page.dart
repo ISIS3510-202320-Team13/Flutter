@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -47,10 +48,34 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
-          body: GoogleMap(
+    final user = FirebaseAuth.instance.currentUser!;
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Home')),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Text('Welcome: ${user.email!}'),
+            ),
+            ListTile(
+              title: const Row(
+                children: [Text('Log out'), Icon(Icons.exit_to_app)],
+              ),
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+              },
+            )
+          ],
+        ),
+      ),
+      body: Stack(
+        children: [
+          GoogleMap(
             zoomControlsEnabled: false,
             onMapCreated: _onMapCreated,
             mapType: MapType.normal,
@@ -59,10 +84,10 @@ class HomePage extends StatelessWidget {
             initialCameraPosition:
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
-        ),
-        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
-        ubicationCard(colorB1: colorB1, colorB2: colorB2),
-      ],
+          fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
+          ubicationCard(colorB1: colorB1, colorB2: colorB2),
+        ],
+      ),
     );
   }
 }
