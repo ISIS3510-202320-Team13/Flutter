@@ -29,8 +29,6 @@ class HomePage extends StatelessWidget {
       mapController.setMapStyle(string);
 
       getUserCurrentLocation().then((value) async {
-        print(value.latitude.toString() + " " + value.longitude.toString());
-
         CameraPosition cameraPosition = CameraPosition(
           target: LatLng(value.latitude, value.longitude),
             zoom: 18.0, tilt: 70
