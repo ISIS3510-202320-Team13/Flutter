@@ -10,12 +10,19 @@ import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  var scaffoldKey = GlobalKey<ScaffoldState>();
+
   late GoogleMapController mapController;
 
-  LatLng _center = const LatLng(4.602796, -74.065841);
-
-  HomePage({super.key});
+  final LatLng _center = const LatLng(4.602796, -74.065841);
 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission()
@@ -49,7 +56,7 @@ class HomePage extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser!;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Home')),
+      key: scaffoldKey,
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -78,12 +85,26 @@ class HomePage extends StatelessWidget {
             onMapCreated: _onMapCreated,
             mapType: MapType.normal,
             myLocationEnabled: true,
-            compassEnabled: true,
+            compassEnabled: false,
             initialCameraPosition:
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
           fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
           ubicationCard(colorB1: colorB1, colorB2: colorB2),
+          Positioned(
+            left: 10,
+            top: 10,
+            child: ElevatedButton(
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all(const CircleBorder()),
+                padding: MaterialStateProperty.all(const EdgeInsets.all(12)),
+              ),
+              onPressed: () {
+                scaffoldKey.currentState?.openDrawer();
+              },
+              child: const Icon(Icons.menu),
+            ),
+          ),
         ],
       ),
     );
