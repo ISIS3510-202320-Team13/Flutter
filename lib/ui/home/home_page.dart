@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:geolocator/geolocator.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:parkez/ui/home/near_parkings.dart';
@@ -9,16 +11,39 @@ import 'package:parkez/ui/theme/theme_constants.dart';
 
 class HomePage extends StatelessWidget {
   late GoogleMapController mapController;
-  final LatLng _center = const LatLng(4.602796, -74.065841);
+
+
+  LatLng _center = const LatLng(4.602796, -74.065841);
 
   HomePage({super.key});
+
+  Future<Position> getUserCurrentLocation() async {
+    await Geolocator.requestPermission().then((value){
+    }).onError((error, stackTrace) async {
+      await Geolocator.requestPermission();
+      print("ERROR$error");
+    });
+    return await Geolocator.getCurrentPosition();
+  }
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     rootBundle.loadString('assets/maps/map_style.txt').then((string) {
       mapController.setMapStyle(string);
+
+      getUserCurrentLocation().then((value) async {
+        CameraPosition cameraPosition = CameraPosition(
+          target: LatLng(value.latitude, value.longitude),
+            zoom: 18.0, tilt: 70
+        );
+
+        controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+      });
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +53,9 @@ class HomePage extends StatelessWidget {
           body: GoogleMap(
             zoomControlsEnabled: false,
             onMapCreated: _onMapCreated,
+            mapType: MapType.normal,
+            myLocationEnabled: true,
+            compassEnabled: true,
             initialCameraPosition:
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
