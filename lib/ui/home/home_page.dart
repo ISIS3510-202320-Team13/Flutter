@@ -13,14 +13,14 @@ import 'package:parkez/ui/theme/theme_constants.dart';
 class HomePage extends StatelessWidget {
   late GoogleMapController mapController;
 
-
   LatLng _center = const LatLng(4.602796, -74.065841);
 
   HomePage({super.key});
 
   Future<Position> getUserCurrentLocation() async {
-    await Geolocator.requestPermission().then((value){
-    }).onError((error, stackTrace) async {
+    await Geolocator.requestPermission()
+        .then((value) {})
+        .onError((error, stackTrace) async {
       await Geolocator.requestPermission();
       print("ERROR$error");
     });
@@ -34,17 +34,15 @@ class HomePage extends StatelessWidget {
 
       getUserCurrentLocation().then((value) async {
         CameraPosition cameraPosition = CameraPosition(
-          target: LatLng(value.latitude, value.longitude),
-            zoom: 18.0, tilt: 70
-        );
+            target: LatLng(value.latitude, value.longitude),
+            zoom: 18.0,
+            tilt: 70);
 
-        controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-
+        controller
+            .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
       });
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
