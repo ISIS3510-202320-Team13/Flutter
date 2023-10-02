@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:parkez/ui/home/near_parkings.dart';
+import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 
 class HomePage extends StatelessWidget {
@@ -255,7 +256,13 @@ class iconButon extends StatelessWidget {
               color: Colors.white, // Button color
               child: InkWell(
                 splashColor: colorB3, // Splash color
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ReservationProcessScreen(),
+                    ),
+                  );
+                },
                 child: SizedBox(
                     width: 56,
                     height: 56,
