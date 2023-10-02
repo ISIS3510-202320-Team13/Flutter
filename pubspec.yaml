@@ -65,8 +65,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/AppLogo.png
-    - assets/map_style.txt
-    - assets/map_style.json
+    - assets/maps/map_style.txt
+    - assets/maps/map_style_grey.txt
+    - assets/maps/map_style.json
     - assets/cuadrito.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

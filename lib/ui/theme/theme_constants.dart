@@ -8,6 +8,8 @@ const colorAccent = Colors.lightBlueAccent;
 Color colorB1 = Color(int.parse("0961AD", radix: 16) + 0xFF000000);
 Color colorB2 = Color(int.parse("2597FA", radix: 16) + 0xFF000000);
 Color colorB3 = Color(int.parse("40A6FF", radix: 16) + 0xFF000000);
+Color colorB4 = Color(int.parse("F5FCFF", radix: 16) + 0xFF000000);
+Color colorBackground = Color(int.parse("F9FCFF", radix: 16) + 0xFF000000);
 
 Color colorY1 = Color(int.parse("B89865", radix: 16) + 0xFF000000);
 

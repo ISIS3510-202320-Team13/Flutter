@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:geolocator/geolocator.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 
@@ -25,7 +28,7 @@ class HomePage extends StatelessWidget {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    rootBundle.loadString('assets/map_style.txt').then((string) {
+    rootBundle.loadString('assets/maps/map_style.txt').then((string) {
       mapController.setMapStyle(string);
 
       getUserCurrentLocation().then((value) async {
@@ -80,40 +83,51 @@ class ubicationCard extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 50),
-        child: SizedBox(
-          width: 350.0,
-          height: 100.0,
-          child: Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
+        child: Material(
+          child: InkResponse(
+            radius: 350.0,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NearParkinsPage()),
+              );
+            },
+            child: SizedBox(
+              width: 350.0,
+              height: 100.0,
+              // make this container a button
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    textFastActions(
-                        texto: "Cra. 1 #22-37, Bogotá",
-                        colorB1: colorB1,
-                        tamanioFuente: 15),
-                    textFastActions(
-                        texto: "25 puestos disponibles",
-                        colorB1: colorB2,
-                        tamanioFuente: 12),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        textFastActions(
+                            texto: "Cra. 1 #22-37, Bogotá",
+                            colorB1: colorB1,
+                            tamanioFuente: 15),
+                        textFastActions(
+                            texto: "25 puestos disponibles",
+                            colorB1: colorB2,
+                            tamanioFuente: 12),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 0, 5, 0),
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Image.asset('assets/cuadrito.png', scale: 1.2),
+                      ),
+                    ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(30, 0, 5, 0),
-                  child: Container(
-                    alignment: Alignment.centerRight,
-                    child: Image.asset('assets/cuadrito.png', scale: 1.2),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
