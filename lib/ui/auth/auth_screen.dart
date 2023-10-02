@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
-import 'package:parkez/ui/widgets/signin_form.dart';
-import 'package:parkez/ui/widgets/signup_form.dart';
+import 'package:parkez/ui/auth/widgets/signin_form.dart';
+import 'package:parkez/ui/auth/widgets/signup_form.dart';
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
@@ -50,18 +50,8 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign Up'),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).floatingActionButtonTheme.foregroundColor,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: SignUpForm(),
+      appBar: appBar(context, 'Sign Up'),
+      body: const SignUpForm(),
     );
   }
 }
@@ -72,19 +62,8 @@ class SignInScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign In'),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).floatingActionButtonTheme.foregroundColor,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: SignInForm(),
+      appBar: appBar(context, 'Sign In'),
+      body: const SignInForm(),
     );
-    ;
   }
 }

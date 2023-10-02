@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parkez/ui/home/home_page.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 
@@ -32,6 +33,7 @@ class SignUpForm extends StatelessWidget {
               hintText: 'What\'s your email address?',
               labelText: 'Email *',
             ),
+            keyboardType: TextInputType.emailAddress,
             // validator: (String? value) {},
           ),
           TextFormField(
@@ -40,6 +42,7 @@ class SignUpForm extends StatelessWidget {
                 hintText: 'Enter your password',
                 labelText: 'Password *'),
             obscureText: true,
+            keyboardType: TextInputType.visiblePassword,
             // validator: (String? value) {},
           ),
           TextFormField(
@@ -48,12 +51,22 @@ class SignUpForm extends StatelessWidget {
                 hintText: 'Confirm your password',
                 labelText: 'Password confirmation *'),
             obscureText: true,
+            keyboardType: TextInputType.visiblePassword,
             // validator: (String? value) {},
           ),
           verticalSpace(100.0),
           ElevatedButton(
             onPressed: () {
               print('Creating account...');
+              // TODO: Remove chambonada of pop twice
+              Navigator.pop(context);
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
             },
             child: const Text('Create Account'),
           ),

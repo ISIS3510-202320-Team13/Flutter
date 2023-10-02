@@ -33,5 +33,7 @@ ThemeData lightTheme = ThemeData(
   textTheme: const TextTheme(
     labelLarge: TextStyle(color: colorPrimary), // This is also button font
     headlineMedium: TextStyle(color: colorPrimary, fontWeight: FontWeight.bold),
+    headlineSmall: TextStyle(color: colorPrimary),
+    displaySmall: TextStyle(color: colorPrimary, fontWeight: FontWeight.bold),
   ),
 );
