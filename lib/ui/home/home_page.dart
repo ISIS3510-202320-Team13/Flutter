@@ -13,7 +13,7 @@ class HomePage extends StatelessWidget {
   late GoogleMapController mapController;
 
 
-  LatLng _center = const LatLng(4.602796, -74.065841);
+  final LatLng _center = const LatLng(4.602796, -74.065841);
 
   HomePage({super.key});
 
