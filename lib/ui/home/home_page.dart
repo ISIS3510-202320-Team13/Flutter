@@ -9,6 +9,8 @@ import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 
+import '../CommonFeatures/profile/profile.dart';
+
 class HomePage extends StatelessWidget {
   late GoogleMapController mapController;
 
