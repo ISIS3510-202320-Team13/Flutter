@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:geolocator/geolocator.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
 
 import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
@@ -53,7 +55,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
 
     return Scaffold(
       key: scaffoldKey,
@@ -72,7 +74,9 @@ class _HomePageState extends State<HomePage> {
                 children: [Text('Log out'), Icon(Icons.exit_to_app)],
               ),
               onTap: () {
-                FirebaseAuth.instance.signOut();
+                context
+                    .read<AuthenticationBloc>()
+                    .add(const AuthenticationSignoutRequested());
               },
             )
           ],
