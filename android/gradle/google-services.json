@@ -13,7 +13,12 @@
           "package_name": "com.example.parkez"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "902078062128-0a9kqeimbn5o52qu1alsdri7pl5p7kh3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDWRIEm4N0555LJtm7odHwMb98PokTS00Y"
@@ -21,7 +26,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "902078062128-0a9kqeimbn5o52qu1alsdri7pl5p7kh3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "902078062128-fs2bmb2a5v2sqofqtt8b50lb82u0llhb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.parkez.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902078062128:android:9d9f2688a9cddacdfa17f5",
+        "android_client_info": {
+          "package_name": "com.example.parkezkotlin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "902078062128-0a9kqeimbn5o52qu1alsdri7pl5p7kh3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWRIEm4N0555LJtm7odHwMb98PokTS00Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "902078062128-0a9kqeimbn5o52qu1alsdri7pl5p7kh3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "902078062128-fs2bmb2a5v2sqofqtt8b50lb82u0llhb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.parkez.RunnerTests"
+              }
+            }
+          ]
         }
       }
     }
