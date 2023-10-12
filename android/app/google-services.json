@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "902078062128",
+    "firebase_url": "https://parkez-b46d5-default-rtdb.firebaseio.com",
+    "project_id": "parkez-b46d5",
+    "storage_bucket": "parkez-b46d5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902078062128:android:e3238023224a0f77fa17f5",
+        "android_client_info": {
+          "package_name": "com.example.parkez"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWRIEm4N0555LJtm7odHwMb98PokTS00Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

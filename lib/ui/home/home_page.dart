@@ -1,27 +1,39 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:geolocator/geolocator.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
 
 import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
-
 import '../CommonFeatures/profile/profile.dart';
 
-class HomePage extends StatelessWidget {
-  late GoogleMapController mapController;
 
+
+class HomePage extends StatefulWidget {
+   HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  var scaffoldKey = GlobalKey<ScaffoldState>();
+
+
+  late GoogleMapController mapController;
 
   final LatLng _center = const LatLng(4.602796, -74.065841);
 
-  HomePage({super.key});
-
   Future<Position> getUserCurrentLocation() async {
-    await Geolocator.requestPermission().then((value){
-    }).onError((error, stackTrace) async {
+    await Geolocator.requestPermission()
+        .then((value) {})
+        .onError((error, stackTrace) async {
       await Geolocator.requestPermission();
       print("ERROR$error");
     });
@@ -35,36 +47,74 @@ class HomePage extends StatelessWidget {
 
       getUserCurrentLocation().then((value) async {
         CameraPosition cameraPosition = CameraPosition(
-          target: LatLng(value.latitude, value.longitude),
-            zoom: 18.0, tilt: 70
-        );
+            target: LatLng(value.latitude, value.longitude),
+            zoom: 18.0,
+            tilt: 70);
 
-        controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-
+        controller
+            .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
       });
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
-          body: GoogleMap(
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
+
+    return Scaffold(
+      key: scaffoldKey,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Text('Welcome: ${user.email!}'),
+            ),
+            ListTile(
+              title: const Row(
+                children: [Text('Log out'), Icon(Icons.exit_to_app)],
+              ),
+              onTap: () {
+                context
+                    .read<AuthenticationBloc>()
+                    .add(const AuthenticationSignoutRequested());
+              },
+            )
+          ],
+        ),
+      ),
+      body: Stack(
+        children: [
+          GoogleMap(
             zoomControlsEnabled: false,
             onMapCreated: _onMapCreated,
             mapType: MapType.normal,
             myLocationEnabled: true,
-            compassEnabled: true,
+            compassEnabled: false,
             initialCameraPosition:
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
-        ),
-        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
-        ubicationCard(colorB1: colorB1, colorB2: colorB2),
-      ],
+          fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
+          ubicationCard(colorB1: colorB1, colorB2: colorB2),
+          Positioned(
+            left: 10,
+            top: 10,
+            child: ElevatedButton(
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all(const CircleBorder()),
+                padding: MaterialStateProperty.all(const EdgeInsets.all(12)),
+              ),
+              onPressed: () {
+                scaffoldKey.currentState?.openDrawer();
+              },
+              child: const Icon(Icons.menu),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
