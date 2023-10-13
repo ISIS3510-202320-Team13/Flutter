@@ -3,6 +3,8 @@ import '../../theme/theme_constants.dart';
 import '../../utils/helper_widgets.dart';
 import 'package:intl/intl.dart';
 
+import '../profile/stats.dart';
+
 class Activity extends StatelessWidget {
   late Map<String, dynamic>? user;
   Activity(this.user, {super.key});
@@ -14,7 +16,13 @@ class Activity extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
 
-          onPressed: () {  },
+          onPressed: () { Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Stats(),
+            ),
+          );
+            },
           backgroundColor: Theme.of(context).primaryColor,
           child: const Icon(Icons.analytics,
             color: Colors.white,
@@ -48,7 +56,7 @@ class Activity extends StatelessWidget {
                                   children: [
                                         Text(parkingActivity[index]['parking']['name'].toString()),
                                         Text(
-                                            '${DateFormat('yyyy-MM-ddThh:mm').parse(parkingActivity[index]['date']).toString().substring(0,16)}'
+                                            '${DateFormat('yyyy-MM-ddThh:mm').parse(parkingActivity[index]['entry_time']).toString().substring(0,16)}'
                                         ),
                                   ],
                                 ),
