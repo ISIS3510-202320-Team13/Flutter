@@ -5,7 +5,9 @@ import 'package:parkez/data/models/reservations/payment.dart';
 import 'package:parkez/data/models/reservations/reservation.dart';
 import 'package:parkez/data/repositories/parking_reservation_repository.dart';
 import 'package:parkez/logic/reservation/bloc/parking_reservation_bloc.dart';
+import 'package:parkez/logic/reservation/time_reservation/cubit/time_reservation_cubit.dart';
 import 'package:parkez/ui/client/reservation_process/widgets/parking_view.dart';
+import 'package:parkez/ui/client/reservation_process/widgets/reservation_view.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 
 import 'widgets/payment_view.dart';
@@ -21,11 +23,18 @@ class ParkingReservation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ParkingReservationBloc(
-        parkingReservationRepository:
-            context.read<ParkingReservationRepository>(),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => ParkingReservationBloc(
+            parkingReservationRepository:
+                context.read<ParkingReservationRepository>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => TimeReservationCubit(),
+        ),
+      ],
       child: ReservationProcessScreen(selectedParking: selectedParking),
     );
   }
@@ -123,11 +132,19 @@ class _ReservationProcessScreenState extends State<ReservationProcessScreen> {
               content: ParkingDetailsView(parking: widget.selectedParking),
             ),
             Step(
-              isActive: _currentStep == ReservationStep.reservation,
-              // label: const Text('Reservation Details'),
-              title: const Text(''),
-              content: Center(child: const Text('Reservation Details')),
-            ),
+                isActive: _currentStep == ReservationStep.reservation,
+                // label: const Text('Reservation Details'),
+                title: const Text(''),
+                content: ReservationDetailsView(
+                  onReservationUpdated: (reservation) {
+                    print("RESERVATION UPDATED");
+                    BlocProvider.of<ParkingReservationBloc>(context).add(
+                      ParkingReservationReservationDetailsSelected(
+                        reservation,
+                      ),
+                    );
+                  },
+                )),
             Step(
               isActive: _currentStep == ReservationStep.payment,
               // label: const Text('Payment'),

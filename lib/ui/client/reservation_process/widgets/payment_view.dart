@@ -6,7 +6,6 @@ class PaymentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('build method called');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
