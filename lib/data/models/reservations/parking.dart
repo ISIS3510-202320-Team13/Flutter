@@ -1,12 +1,20 @@
 import 'package:equatable/equatable.dart';
 
 class Parking extends Equatable {
-  // TODO: Add new fields (e.g., location)
+  // TODO: Add new fields (e.g., address)
 
   final String id;
   final String? name;
+  final double? price;
+  final double? distance;
+  final int? spotsAvailable;
 
-  const Parking({required this.id, this.name});
+  const Parking(
+      {required this.id,
+      this.name,
+      this.price,
+      this.distance,
+      this.spotsAvailable});
 
   static const empty = Parking(id: '');
 
@@ -14,5 +22,5 @@ class Parking extends Equatable {
   bool get isNotEmpty => this != Parking.empty;
 
   @override
-  List<Object?> get props => [id, name];
+  List<Object?> get props => [id, name, price, distance, spotsAvailable];
 }

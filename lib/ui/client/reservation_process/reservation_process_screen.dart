@@ -5,14 +5,18 @@ import 'package:parkez/data/models/reservations/payment.dart';
 import 'package:parkez/data/models/reservations/reservation.dart';
 import 'package:parkez/data/repositories/parking_reservation_repository.dart';
 import 'package:parkez/logic/reservation/bloc/parking_reservation_bloc.dart';
+import 'package:parkez/ui/client/reservation_process/widgets/parking_view.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 
 import 'widgets/payment_view.dart';
 import 'widgets/checkout_view.dart';
 
 class ParkingReservation extends StatelessWidget {
+  final Parking selectedParking;
+
   const ParkingReservation({
     super.key,
+    required this.selectedParking,
   });
 
   @override
@@ -22,13 +26,14 @@ class ParkingReservation extends StatelessWidget {
         parkingReservationRepository:
             context.read<ParkingReservationRepository>(),
       ),
-      child: ReservationProcessScreen(),
+      child: ReservationProcessScreen(selectedParking: selectedParking),
     );
   }
 }
 
 class ReservationProcessScreen extends StatefulWidget {
-  ReservationProcessScreen({super.key});
+  final Parking selectedParking;
+  ReservationProcessScreen({super.key, required this.selectedParking});
 
   @override
   State<ReservationProcessScreen> createState() =>
@@ -82,8 +87,8 @@ class _ReservationProcessScreenState extends State<ReservationProcessScreen> {
               case ReservationStep.parking:
                 // TODO: Don't do a mock parking
                 print("PARKING SELECTED");
-                BlocProvider.of<ParkingReservationBloc>(context)
-                    .add(ParkingReservationParkingSelected(mockParking));
+                BlocProvider.of<ParkingReservationBloc>(context).add(
+                    ParkingReservationParkingSelected(widget.selectedParking));
                 break;
               case ReservationStep.reservation:
                 print("RESERVATION SELECTED");
@@ -115,7 +120,7 @@ class _ReservationProcessScreenState extends State<ReservationProcessScreen> {
               isActive: _currentStep == ReservationStep.parking,
               // label: const Text('Parking Details'),
               title: const Text(''),
-              content: Center(child: const Text('Parking Details')),
+              content: ParkingDetailsView(parking: widget.selectedParking),
             ),
             Step(
               isActive: _currentStep == ReservationStep.reservation,
@@ -127,14 +132,14 @@ class _ReservationProcessScreenState extends State<ReservationProcessScreen> {
               isActive: _currentStep == ReservationStep.payment,
               // label: const Text('Payment'),
               title: const Text(''),
-              content: Container(child: PaymentView()),
+              content: const PaymentView(),
             ),
             Step(
               isActive: _currentStep == ReservationStep.checkout,
               // label: const Text('Checkout'),
               title: const Text(''),
               // content: Center(child: const Text('Checkout')),
-              content: Container(child: CheckoutView()),
+              content: const CheckoutView(),
             ),
           ],
         ),

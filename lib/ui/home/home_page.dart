@@ -332,16 +332,7 @@ class iconButon extends StatelessWidget {
               color: Colors.white, // Button color
               child: InkWell(
                 splashColor: colorB3, // Splash color
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => RepositoryProvider(
-                        create: (context) => ParkingReservationRepository(),
-                        child: const ParkingReservation(),
-                      ),
-                    ),
-                  );
-                },
+                onTap: () {},
                 child: SizedBox(
                     width: 56,
                     height: 56,
