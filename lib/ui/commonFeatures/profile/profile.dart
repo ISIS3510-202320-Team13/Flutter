@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:parkez/data/models/user.dart';
 import 'package:parkez/ui/commonFeatures/activity/activity.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 import 'package:parkez/ui/commonFeatures/settings/settings.dart';
 
 class Profile extends StatelessWidget {
-  const Profile({super.key});
+  late Map<String, dynamic>? user;
+  Profile(Map<String, dynamic> this.user, {super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,15 +35,14 @@ class Profile extends StatelessWidget {
 
             CircleAvatar(
               radius: 100,
-              backgroundImage: NetworkImage(
-                  'https://picsum.photos/id/237/200/300'),
+              backgroundImage: NetworkImage('${user?['picture']}'),
             ),
 
 
 
             Center(
               child: Text(
-                "Juan Fernando",
+                '${user?['name']}',
                 style: Theme
                     .of(context)
                     .textTheme
@@ -56,7 +58,7 @@ class Profile extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Settings(),
+                    builder: (context) => const Settings(),
                   ),
                 );
               },
@@ -73,7 +75,7 @@ class Profile extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Activity(),
+                    builder: (context) => Activity(user),
                   ),
                 );
               },

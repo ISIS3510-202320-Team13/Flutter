@@ -4,6 +4,7 @@ import '../../theme/theme_constants.dart';
 import '../../utils/helper_widgets.dart';
 
 class Settings extends StatelessWidget {
+
   const Settings({super.key});
 
   @override
