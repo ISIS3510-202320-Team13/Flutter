@@ -139,12 +139,10 @@ void _onHomeCreated() {
             initialCameraPosition:
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
-        ),
+
         fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
         ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2),
-      ],
-          fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
-          ubicationCard(colorB1: colorB1, colorB2: colorB2),
+
           Positioned(
             left: 10,
             top: 10,
