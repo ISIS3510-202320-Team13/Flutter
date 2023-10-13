@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parkez/data/repositories/parking_reservation_repository.dart';
 import 'package:parkez/data/models/user.dart';
 import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
+import 'package:parkez/ui/commonFeatures/profile/profile.dart';
 
 import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
@@ -58,17 +59,21 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void getUserData() async{
+  void getUserData() async {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     Uri uri = Uri.parse('http://3.211.168.157:8000/users/${user.id}');
     Response response = await get(uri);
-    userData =  jsonDecode(response.body);
+    userData = jsonDecode(response.body);
   }
-
 
   @override
   Widget build(BuildContext context) {
-    getUserData();
+    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
+    // try {
+    //   getUserData();
+    // } catch (e) {
+    //   print(e);
+    // }
 
     return Scaffold(
       key: scaffoldKey,
@@ -77,21 +82,21 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Profile(userData)),
-                  );
-                },
-                child: Text('Welcome: ${userData['name']}'),
-              )
-
-            ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //       builder: (context) => Profile(userData)),
+                    // );
+                    print(
+                        "Here we should have a Profile (if the server wasn't down)");
+                  },
+                  child: Text('Welcome: ${userData['name']}'),
+                )),
             ListTile(
               title: const Row(
                 children: [Text('Log out'), Icon(Icons.exit_to_app)],
