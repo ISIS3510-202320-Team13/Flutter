@@ -2,75 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 
 class PaymentView extends StatelessWidget {
-  const PaymentView({
-    super.key,
-  });
+  const PaymentView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Center(
           child: Text(
-            'Checkout',
+            'Payment',
             style: Theme.of(context).textTheme.displaySmall,
           ),
         ),
+        verticalSpace(20.0),
+        itemDefinition('Price', '13.000 COP'),
+        verticalSpace(5.0),
+        itemDefinition('Parking Name', 'City Parking - Uniandes'),
+        verticalSpace(5.0),
+        itemDefinition('Date', 'August 18th, 2023'),
+        verticalSpace(5.0),
+        itemDefinition('Time Range', '18:00 - 20:00'),
         const Divider(),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.calendar_month),
-                    horizontalSpace(60.0),
-                    Text(
-                      'Parking Details',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ],
-                ),
-                verticalSpace(20.0),
-                itemDefinition('Parking Name', 'City Parking - Uniandes'),
-                verticalSpace(5.0),
-                itemDefinition('Date', 'August 18th, 2023'),
-                verticalSpace(5.0),
-                itemDefinition('Time Range', '18:00 - 20:00')
-              ],
-            ),
+        TextFormField(
+          decoration: const InputDecoration(
+            icon: Icon(Icons.credit_card),
+            hintText: 'Enter your credit card number',
+            labelText: 'Credit Card Number *',
           ),
+          // validator: (String? value) {},
+          keyboardType: TextInputType.number,
         ),
-        const Divider(),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.payment),
-                    horizontalSpace(60.0),
-                    Text(
-                      'Payment Details',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ],
-                ),
-                verticalSpace(20.0),
-                itemDefinition('Ticket Number', 'YR84K092KSJDY'),
-                verticalSpace(5.0),
-                itemDefinition('Cost', '13.000 COP'),
-              ],
-            ),
+        TextFormField(
+          decoration: const InputDecoration(
+            icon: Icon(Icons.calendar_today),
+            hintText: 'MM/YY',
+            labelText: 'Expiration Date *',
           ),
+          keyboardType: TextInputType.datetime,
+        ),
+        TextFormField(
+          decoration: const InputDecoration(
+            icon: Icon(Icons.lock),
+            hintText: 'Enter your card secret code',
+            labelText: 'Card Secret Code *',
+          ),
+          keyboardType: TextInputType.number,
         ),
       ],
     );

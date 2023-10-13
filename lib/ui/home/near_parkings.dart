@@ -1,7 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parkez/data/models/reservations/parking.dart';
+import 'package:parkez/data/repositories/parking_reservation_repository.dart';
+import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
+
+const mockParkings = [
+  Parking(
+    id: '1',
+    name: 'City Parking',
+    price: 90,
+    distance: 110,
+    spotsAvailable: 25,
+  ),
+  Parking(
+    id: '2',
+    name: 'CityU',
+    price: 110,
+    distance: 300,
+    spotsAvailable: 15,
+  ),
+  Parking(
+    id: '3',
+    name: 'Tequendama',
+    price: 120,
+    distance: 320,
+    spotsAvailable: 23,
+  ),
+  Parking(
+    id: '4',
+    name: 'Cinemateca',
+    price: 90,
+    distance: 540,
+    spotsAvailable: 0,
+  ),
+  Parking(
+    id: '5',
+    name: 'Aparcar',
+    price: 90,
+    distance: 712,
+    spotsAvailable: 1,
+  ),
+  Parking(
+    id: '6',
+    name: 'Uniandes SD',
+    price: 110,
+    distance: 930,
+    spotsAvailable: 12,
+  ),
+];
 
 class NearParkinsPage extends StatelessWidget {
   late GoogleMapController mapController;
@@ -88,42 +137,8 @@ class ListOfParkingLots extends StatelessWidget {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  TileParkings(
-                      name: "City Parking",
-                      numberSpots: "25",
-                      price: "90",
-                      distance: "110",
-                      colorText: colorB3),
-                  TileParkings(
-                      name: "CityU",
-                      numberSpots: "15",
-                      price: "110",
-                      distance: "300",
-                      colorText: colorB3),
-                  TileParkings(
-                      name: "Tequendama",
-                      numberSpots: "23",
-                      price: "120",
-                      distance: "320",
-                      colorText: colorB3),
-                  TileParkings(
-                      name: "Cinemateca",
-                      numberSpots: "0",
-                      price: "90",
-                      distance: "540",
-                      colorText: Colors.red),
-                  TileParkings(
-                      name: "Aparcar",
-                      numberSpots: "1",
-                      price: "90",
-                      distance: "712",
-                      colorText: colorB3),
-                  TileParkings(
-                      name: "Uniandes SD",
-                      numberSpots: "12",
-                      price: "110",
-                      distance: "930",
-                      colorText: colorB3),
+                  for (var parking in mockParkings)
+                    TileParkings(parking: parking),
                 ],
               ),
             ),
@@ -165,8 +180,7 @@ class SearchBarWText extends StatelessWidget {
                         const ContinuousRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     )),
-                    side: MaterialStateProperty.all(
-                        BorderSide(color: colorB3)),
+                    side: MaterialStateProperty.all(BorderSide(color: colorB3)),
                     shadowColor: MaterialStateProperty.all(
                         Colors.white.withOpacity(0.5)),
                     hintText: 'Type keyword',
@@ -186,25 +200,24 @@ class SearchBarWText extends StatelessWidget {
 class TileParkings extends StatelessWidget {
   const TileParkings({
     super.key,
-    required this.name,
-    required this.numberSpots,
-    required this.price,
-    required this.distance,
-    required this.colorText,
+    required this.parking,
   });
 
-  final String name;
-  final String numberSpots;
-  final String price;
-  final String distance;
-  final Color colorText;
+  final Parking parking;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       child: InkWell(
         onTap: () {
-          print('Tile pressed');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => RepositoryProvider(
+                create: (context) => ParkingReservationRepository(),
+                child: ParkingReservation(selectedParking: parking),
+              ),
+            ),
+          );
         },
         child: Card(
           color: colorBackground,
@@ -212,7 +225,7 @@ class TileParkings extends StatelessWidget {
             padding: const EdgeInsets.all(2.0),
             child: ListTile(
               title: Text(
-                name,
+                parking.name!,
                 style: TextStyle(
                   color: colorB1,
                   decoration: TextDecoration.none,
@@ -227,18 +240,24 @@ class TileParkings extends StatelessWidget {
                     color: Colors.black,
                   ),
                   children: <TextSpan>[
-                    TextSpan(text: numberSpots, style: TextStyle(color: colorText)),
                     TextSpan(
-                        text: ' cupos disponibles',
-                        style: TextStyle(color: colorText)),
+                        text: "${parking.spotsAvailable!} cupos disponibles",
+                        style: TextStyle(
+                            color: parking.spotsAvailable! > 0
+                                ? colorB2
+                                : Colors.red)),
                     TextSpan(
-                        text: ' - ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: price, style: TextStyle(color: colorB2)),
-                    TextSpan(text: '/min', style: TextStyle(color: colorB2)),
+                        text: ' - ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(
-                        text: ' - ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: distance, style: TextStyle(color: colorB1)),
-                    TextSpan(text: ' mts', style: TextStyle(color: colorB1)),
+                        text: "${parking.price!}/min",
+                        style: TextStyle(color: colorB2)),
+                    TextSpan(
+                        text: ' - ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: "${parking.distance!} mts",
+                        style: TextStyle(color: colorB1)),
                   ],
                 ),
               ),
