@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,17 +5,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parkez/data/repositories/parking_reservation_repository.dart';
 import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
 
 import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
-import '../CommonFeatures/profile/profile.dart';
-
-
 
 class HomePage extends StatefulWidget {
-   HomePage({super.key});
+  HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -24,7 +21,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
-
 
   late GoogleMapController mapController;
 
@@ -339,7 +335,10 @@ class iconButon extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const ReservationProcessScreen(),
+                      builder: (context) => RepositoryProvider(
+                        create: (context) => ParkingReservationRepository(),
+                        child: const ParkingReservation(),
+                      ),
                     ),
                   );
                 },
