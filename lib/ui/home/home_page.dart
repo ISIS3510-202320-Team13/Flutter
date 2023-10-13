@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,14 +11,39 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
+import 'package:http/http.dart' as http;
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  HomePage({super.key});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  String fullAdress = "Cargando...";
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+
+class _HomePageState  extends State<HomePage> {
+
+  @override
+  void initState() {
+    super.initState();
+    _onHomeCreated();
+  }
+
   late GoogleMapController mapController;
-
+  String fullAdress = "Cargando...";
 
   LatLng _center = const LatLng(4.602796, -74.065841);
-
-  HomePage({super.key});
 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission().then((value){
@@ -24,6 +52,11 @@ class HomePage extends StatelessWidget {
       print("ERROR$error");
     });
     return await Geolocator.getCurrentPosition();
+  }
+
+  Future<http.Response> fetchDir(double lat,double lon) {
+    print('http://3.211.168.157:8000/address/bylatlon/$lat/$lat');
+    return http.get(Uri.parse('http://3.211.168.157:8000/address/bylatlon/$lat/$lon'));
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -38,11 +71,23 @@ class HomePage extends StatelessWidget {
         );
 
         controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-
       });
     });
   }
 
+void _onHomeCreated() {
+  getUserCurrentLocation().then((value) async {
+    fetchDir(value.latitude, value.longitude).then((dir) async {
+      var res = jsonDecode(dir.body)["loc"];
+
+      setState(() {
+        fullAdress = '${res["road"]}, ${res["house_number"]}, ${res["city"]}';
+      });
+      print(fullAdress);
+    });
+  });
+
+  }
 
 
   @override
@@ -61,21 +106,23 @@ class HomePage extends StatelessWidget {
           ),
         ),
         fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
-        ubicationCard(colorB1: colorB1, colorB2: colorB2),
+        ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2),
       ],
     );
   }
 }
 
 class ubicationCard extends StatelessWidget {
-  const ubicationCard({
+  ubicationCard({
     super.key,
     required this.colorB1,
     required this.colorB2,
+    required this.fullAdress,
   });
 
   final Color colorB1;
   final Color colorB2;
+  late String fullAdress;
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +156,7 @@ class ubicationCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         textFastActions(
-                            texto: "Cra. 1 #22-37, Bogotá",
+                            texto: fullAdress,
                             colorB1: colorB1,
                             tamanioFuente: 15),
                         textFastActions(
