@@ -38,3 +38,16 @@ Row itemDefinition(String name, String definition) {
     ],
   );
 }
+
+SnackBar errorSnackbar(String errorMessage) {
+  return SnackBar(
+    content: Center(
+      child: Column(
+        children: [
+          const Icon(Icons.error),
+          Text(errorMessage),
+        ],
+      ),
+    ),
+  );
+}

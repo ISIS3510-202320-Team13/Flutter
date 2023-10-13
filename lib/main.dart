@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:parkez/ui/auth/auth_screen.dart';
-import 'package:parkez/ui/theme/theme_constants.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:parkez/app.dart';
+import 'package:parkez/data/repositories/authentication_repository.dart';
 
-void main() {
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: lightTheme,
-      home: const LandingScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+
+  final authRepository = AuthenticationRepository();
+  await authRepository.user.first;
+
+  runApp(App(authRepository: authRepository));
 }
