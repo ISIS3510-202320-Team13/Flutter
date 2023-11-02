@@ -102,6 +102,11 @@ void _onHomeCreated() {
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
+    // try {
+    //   getUserData();
+    // } catch (e) {
+    //   print(e);
+    // }
 
     return Scaffold(
       key: scaffoldKey,
@@ -383,11 +388,7 @@ class iconButon extends StatelessWidget {
               child: InkWell(
                 splashColor: colorB3, // Splash color
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const ReservationProcessScreen(),
-                    ),
-                  );
+                  print("s");
                 },
                 child: SizedBox(
                     width: 56,

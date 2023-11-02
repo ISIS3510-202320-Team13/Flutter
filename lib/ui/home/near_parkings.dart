@@ -326,7 +326,7 @@ class TileParkings extends StatelessWidget {
     return Material(
       child: InkWell(
         onTap: () {
-          print('Tile pressed');
+          print('tapped');
         },
         child: Card(
           color: colorBackground,
