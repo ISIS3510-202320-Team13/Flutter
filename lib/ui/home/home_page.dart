@@ -1,34 +1,55 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:http/http.dart';
-import 'dart:convert';
-
 import 'package:geolocator/geolocator.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:parkez/data/repositories/parking_reservation_repository.dart';
-import 'package:parkez/data/models/user.dart';
 import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
-import 'package:parkez/ui/commonFeatures/profile/profile.dart';
 
 import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
+import 'package:http/http.dart' as http;
+import '../CommonFeatures/profile/profile.dart';
+
+
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  String fullAdress = "Cargando...";
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+
+class _HomePageState  extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  Map<String, dynamic> userData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _onHomeCreated();
+  }
 
   late GoogleMapController mapController;
+  String fullAdress = "Cargando...";
+
 
   final LatLng _center = const LatLng(4.602796, -74.065841);
 
@@ -42,6 +63,11 @@ class _HomePageState extends State<HomePage> {
     return await Geolocator.getCurrentPosition();
   }
 
+  Future<http.Response> fetchDir(double lat,double lon) {
+    print('http://3.211.168.157:8000/address/bylatlon/$lat/$lat');
+    return http.get(Uri.parse('http://3.211.168.157:8000/address/bylatlon/$lat/$lon'));
+  }
+
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     rootBundle.loadString('assets/maps/map_style.txt').then((string) {
@@ -53,18 +79,25 @@ class _HomePageState extends State<HomePage> {
             zoom: 18.0,
             tilt: 70);
 
-        controller
-            .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+        controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
       });
     });
   }
 
-  void getUserData() async {
-    final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
-    Uri uri = Uri.parse('http://3.211.168.157:8000/users/${user.id}');
-    Response response = await get(uri);
-    userData = jsonDecode(response.body);
+void _onHomeCreated() {
+  getUserCurrentLocation().then((value) async {
+    fetchDir(value.latitude, value.longitude).then((dir) async {
+      var res = jsonDecode(dir.body)["loc"];
+
+      setState(() {
+        fullAdress = '${res["road"]}, ${res["house_number"]}, ${res["city"]}';
+      });
+      print(fullAdress);
+    });
+  });
+
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -82,21 +115,11 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //       builder: (context) => Profile(userData)),
-                    // );
-                    print(
-                        "Here we should have a Profile (if the server wasn't down)");
-                  },
-                  child: Text('Welcome: ${userData['name']}'),
-                )),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Text('Welcome: ${user.email!}'),
+            ),
             ListTile(
               title: const Row(
                 children: [Text('Log out'), Icon(Icons.exit_to_app)],
@@ -121,8 +144,10 @@ class _HomePageState extends State<HomePage> {
             initialCameraPosition:
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
-          fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
-          ubicationCard(colorB1: colorB1, colorB2: colorB2),
+
+        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
+        ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2),
+
           Positioned(
             left: 10,
             top: 10,
@@ -144,14 +169,16 @@ class _HomePageState extends State<HomePage> {
 }
 
 class ubicationCard extends StatelessWidget {
-  const ubicationCard({
+  ubicationCard({
     super.key,
     required this.colorB1,
     required this.colorB2,
+    required this.fullAdress,
   });
 
   final Color colorB1;
   final Color colorB2;
+  late String fullAdress;
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +212,7 @@ class ubicationCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         textFastActions(
-                            texto: "Cra. 1 #22-37, Bogotá",
+                            texto: fullAdress,
                             colorB1: colorB1,
                             tamanioFuente: 15),
                         textFastActions(
@@ -360,7 +387,9 @@ class iconButon extends StatelessWidget {
               color: Colors.white, // Button color
               child: InkWell(
                 splashColor: colorB3, // Splash color
-                onTap: () {},
+                onTap: () {
+                  print("s");
+                },
                 child: SizedBox(
                     width: 56,
                     height: 56,
