@@ -34,7 +34,20 @@ int getLeastOccupiedHour() {
 
   return hours.reduce((a, b) => a < b ? a : b);
 }
+  //Get reservation average duration
+  double getAverageDuration() {
+    double totalDuration = 0;
+    final dateFormat = DateFormat('yyyy-MM-dd HH:mm'); // Adjust the date format to match your input
 
+    for (var reservation in reservations) {
+      final entryTime = reservation['entry_time'];
+      final exitTime = reservation['exit_time'];
+      final dateTimeEntry = dateFormat.parse(entryTime);
+      final dateTimeExit = dateFormat.parse(exitTime);
+      totalDuration += dateTimeExit.difference(dateTimeEntry).inMinutes;
+    }
+    return totalDuration / reservations.length;
+  }
 
   //Average cost of a reservation
   double getAverageCost() {

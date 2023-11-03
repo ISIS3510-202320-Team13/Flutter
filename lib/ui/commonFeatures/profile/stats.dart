@@ -57,9 +57,8 @@ class Stats extends StatelessWidget {
       Uri uri = Uri.parse('http://3.211.168.157:8000/reservations/all');
       Response response = await get(uri);
       reservationData = jsonDecode(response.body);
-
-
     }
+
     //getData();
     print( reservationData.values.toList());
     TotalReservationsAnalytics analitycs = TotalReservationsAnalytics(
@@ -72,6 +71,7 @@ class Stats extends StatelessWidget {
           child: Text('Most occupied hour: ${analitycs.getMostOccupiedHour()} \n'+
               'Least occupied hour: ${analitycs.getLeastOccupiedHour()} \n'+
               'Average cost: ${analitycs.getAverageCost()} \n'+
+              'Average duration: ${analitycs.getAverageDuration()} \n'+
               'Most expensive reservation: ${analitycs.getMostExpensiveReservation()} \n'+
               'Cheapest reservation: ${analitycs.getCheapestReservation()} \n',
               //'Most popular parking: ${analitycs.getMostPopularParking()} \n',
