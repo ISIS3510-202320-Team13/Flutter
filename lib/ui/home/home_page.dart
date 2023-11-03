@@ -16,11 +16,13 @@ import 'package:parkez/ui/client/reservation_process/reservation_process_screen.
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:http/http.dart' as http;
 import '../CommonFeatures/profile/profile.dart';
+import 'package:path_provider/path_provider.dart';
 
+import 'dart:io';
 
 
 class HomePage extends StatefulWidget {
-  HomePage({super.key});
+  const HomePage({super.key});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -31,12 +33,45 @@ class HomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  String fullAdress = "Cargando...";
+
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
+class CounterStorage {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/counter.txt');
+  }
+
+  Future<int> readCounter() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file
+      final contents = await file.readAsString();
+
+      return int.parse(contents);
+    } catch (e) {
+      // If encountering an error, return 0
+      return 0;
+    }
+  }
+
+  Future<File> writeCounter(int counter) async {
+    final file = await _localFile;
+
+    // Write the file
+    return file.writeAsString('$counter');
+  }
+}
 
 class _HomePageState  extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
@@ -50,7 +85,8 @@ class _HomePageState  extends State<HomePage> {
   late GoogleMapController mapController;
   String fullAdress = "Cargando...";
 
-
+  double latitude = 0.0;
+  double longitude = 0.0;
   final LatLng _center = const LatLng(4.602796, -74.065841);
 
   Future<Position> getUserCurrentLocation() async {
@@ -64,8 +100,9 @@ class _HomePageState  extends State<HomePage> {
   }
 
   Future<http.Response> fetchDir(double lat,double lon) {
-    print('http://3.211.168.157:8000/address/bylatlon/$lat/$lat');
-    return http.get(Uri.parse('http://3.211.168.157:8000/address/bylatlon/$lat/$lon'));
+    print('http://parkez.xyz:8082/address/bylatlon/$lat/$lat');
+    return http.get(Uri.parse('http://parkez.xyz:8082/address/bylatlon/$lat/$lon'),
+        headers: {"X-API-Key": "my_api_key"});
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -86,11 +123,14 @@ class _HomePageState  extends State<HomePage> {
 
 void _onHomeCreated() {
   getUserCurrentLocation().then((value) async {
-    fetchDir(value.latitude, value.longitude).then((dir) async {
+    latitude = value.latitude;
+    longitude = value.longitude;
+    fetchDir(latitude, longitude).then((dir) async {
       var res = jsonDecode(dir.body)["loc"];
-
+      print(res);
       setState(() {
         fullAdress = '${res["road"]}, ${res["house_number"]}, ${res["city"]}';
+        print(fullAdress);
       });
       print(fullAdress);
     });
@@ -146,7 +186,7 @@ void _onHomeCreated() {
           ),
 
         fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
-        ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2),
+        ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
 
           Positioned(
             left: 10,
@@ -174,11 +214,15 @@ class ubicationCard extends StatelessWidget {
     required this.colorB1,
     required this.colorB2,
     required this.fullAdress,
+    required this.latitude,
+    required this.longitude
   });
 
   final Color colorB1;
   final Color colorB2;
   late String fullAdress;
+  late double latitude;
+  late double longitude;
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +236,7 @@ class ubicationCard extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NearParkinsPage()),
+                MaterialPageRoute(builder: (context) => NearParkinsPage(key: null, latitude: latitude, longitude: longitude)),
               );
             },
             child: SizedBox(

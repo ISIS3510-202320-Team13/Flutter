@@ -50,6 +50,7 @@ dependencies:
   formz: ^0.6.1
   font_awesome_flutter: ^10.5.0
   uuid: ^3.0.7
+  path_provider: ^2.1.1
 
 dev_dependencies:
   flutter_test:

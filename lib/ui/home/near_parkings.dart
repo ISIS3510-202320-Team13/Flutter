@@ -8,12 +8,82 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:parkez/ui/theme/theme_constants.dart';
+import 'package:path_provider/path_provider.dart';
+
+import 'dart:io';
 
 
-class NearParkinsPage extends StatelessWidget {
+class NearParkinsPage extends StatefulWidget {
+  const NearParkinsPage({super.key, required this.latitude, required this.longitude});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+  final double latitude;
+  final double longitude;
+
+  @override
+  State<NearParkinsPage> createState() => _NearParkinsPageState();
+}
+
+class CounterStorage {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/counter.txt');
+  }
+
+  Future<int> readCounter() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file
+      final contents = await file.readAsString();
+
+      return int.parse(contents);
+    } catch (e) {
+      // If encountering an error, return 0
+      return 0;
+    }
+  }
+
+  Future<File> writeCounter(int counter) async {
+    final file = await _localFile;
+
+    // Write the file
+    return file.writeAsString('$counter');
+  }
+}
+
+
+class _NearParkinsPageState extends State<NearParkinsPage> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    double latitude = widget.latitude;
+    double longitude = widget.longitude;
+
+    // Now you can use the latitude and longitude values as needed.
+    print("Latitude: $latitude, Longitude: $longitude");
+  }
 
   late GoogleMapController mapController;
-  final LatLng _center = const LatLng(4.603492, -74.066089);
+
+  double latitude = 0.0;
+  double longitude = 0.0;
+  late final LatLng _center = LatLng(latitude, longitude);
 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission().then((value){
@@ -25,13 +95,11 @@ class NearParkinsPage extends StatelessWidget {
   }
 
   Future<http.Response> fetchNearParkings(double lat,double lon) {
-    print('http://3.211.168.157:8000/parkings/near/bylatlon/$lat/$lat');
-    return http.get(Uri.parse('http://3.211.168.157:8000/parkings/near/bylatlon/$lat/$lon'));
+    print('http://parkez.xyz:8082/parkings/near/bylatlon/$lat/$lon');
+    return http.get(Uri.parse('http://parkez.xyz:8082/parkings/near/bylatlon/$lat/$lon'), headers: {"X-API-Key": "my_api_key"});
   }
 
   TextEditingController dateInput = TextEditingController();
-
-  NearParkinsPage({super.key});
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -53,13 +121,12 @@ class NearParkinsPage extends StatelessWidget {
     getUserCurrentLocation().then((value) async {
       fetchNearParkings(value.latitude, value.longitude).then((dir) async {
 
-        var res = jsonDecode(dir.body)["others"];
+        var res = jsonDecode(dir.body);
 
-
-
-        for (var age in res.keys) {
-          print(res[age]);
+        for (String i in res.keys) {
+          print(res[i]);
         }
+
       });
     });
 
