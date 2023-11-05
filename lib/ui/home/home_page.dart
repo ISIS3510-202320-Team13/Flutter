@@ -1,24 +1,20 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:geolocator/geolocator.dart';
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
-
 import 'package:parkez/ui/home/near_parkings.dart';
-import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
+import 'package:parkez/ui/utils/file_reader.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
-import 'package:http/http.dart' as http;
-import '../CommonFeatures/profile/profile.dart';
-import 'package:path_provider/path_provider.dart';
 
-import 'dart:io';
+import 'package:http/http.dart' as http;
+
+
 
 
 class HomePage extends StatefulWidget {
@@ -33,48 +29,14 @@ class HomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class CounterStorage {
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/counter.txt');
-  }
-
-  Future<int> readCounter() async {
-    try {
-      final file = await _localFile;
-
-      // Read the file
-      final contents = await file.readAsString();
-
-      return int.parse(contents);
-    } catch (e) {
-      // If encountering an error, return 0
-      return 0;
-    }
-  }
-
-  Future<File> writeCounter(int counter) async {
-    final file = await _localFile;
-
-    // Write the file
-    return file.writeAsString('$counter');
-  }
-}
-
 class _HomePageState  extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
+
+  CounterStorage storage = CounterStorage();
 
   @override
   void initState() {
@@ -185,8 +147,16 @@ void _onHomeCreated() {
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
 
-        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
-        ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1, storage: storage),
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 590, 0, 0),
+              child: reservationCard(fullAdress: "Parece que tienes una \n esperandote", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+            ),
+            ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+          ],
+        ),
 
           Positioned(
             left: 10,
@@ -229,7 +199,7 @@ class ubicationCard extends StatelessWidget {
     return Container(
       alignment: Alignment.bottomCenter,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 50),
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
         child: Material(
           child: InkResponse(
             radius: 350.0,
@@ -283,17 +253,92 @@ class ubicationCard extends StatelessWidget {
   }
 }
 
+class reservationCard extends StatelessWidget {
+  reservationCard({
+    super.key,
+    required this.colorB1,
+    required this.colorB2,
+    required this.fullAdress,
+    required this.latitude,
+    required this.longitude
+  });
+
+  final Color colorB1;
+  final Color colorB2;
+  late String fullAdress;
+  late double latitude;
+  late double longitude;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+        child: Material(
+          child: InkResponse(
+            radius: 350.0,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NearParkinsPage(key: null, latitude: latitude, longitude: longitude)),
+              );
+            },
+            child: SizedBox(
+              width: 350.0,
+              height: 100.0,
+              // make this container a button
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        textFastActions(
+                            texto: fullAdress,
+                            colorB1: colorB1,
+                            tamanioFuente: 13),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 0, 5, 0),
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.directions_car,
+                          color: colorY1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class fastActionMenu extends StatelessWidget {
   const fastActionMenu({
     super.key,
     required this.colorB1,
     required this.colorB3,
-    required this.colorY1,
+    required this.colorY1, required this.storage,
   });
 
   final Color colorB1;
   final Color colorB3;
   final Color colorY1;
+  final CounterStorage storage;
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +368,9 @@ class fastActionMenu extends StatelessWidget {
                           colorB1: colorB1,
                           buscar: Icons.search,
                           colorB3: colorB3,
-                          colorY1: colorY1),
+                          colorY1: colorY1,
+                          favorite: 'search',
+                          storage: storage),
                       textFastActions(
                           texto: "Buscar", colorB1: colorB1, tamanioFuente: 12),
                     ],
@@ -334,7 +381,9 @@ class fastActionMenu extends StatelessWidget {
                           colorB1: colorB1,
                           buscar: Icons.work,
                           colorB3: colorB3,
-                          colorY1: colorY1),
+                          colorY1: colorY1,
+                          favorite: 'work',
+                          storage: storage),
                       textFastActions(
                           texto: "Trabajo",
                           colorB1: colorB1,
@@ -347,7 +396,9 @@ class fastActionMenu extends StatelessWidget {
                           colorB1: colorB1,
                           buscar: Icons.star,
                           colorB3: colorB3,
-                          colorY1: colorY1),
+                          colorY1: colorY1,
+                          favorite: 'favorite',
+                          storage: storage),
                       textFastActions(
                           texto: "Favoritos",
                           colorB1: colorB1,
@@ -360,7 +411,9 @@ class fastActionMenu extends StatelessWidget {
                           colorB1: colorB1,
                           buscar: Icons.people,
                           colorB3: colorB3,
-                          colorY1: colorY1),
+                          colorY1: colorY1,
+                          favorite: 'recomended',
+                          storage: storage,),
                       textFastActions(
                           texto: "Recomendados",
                           colorB1: colorB1,
@@ -409,12 +462,15 @@ class iconButon extends StatelessWidget {
     required this.buscar,
     required this.colorB3,
     required this.colorY1,
+    required this.favorite, required this.storage,
   });
 
+  final String favorite;
   final Color colorB1;
   final IconData buscar;
   final Color colorB3;
   final Color colorY1;
+  final CounterStorage storage;
 
   @override
   Widget build(BuildContext context) {
@@ -432,7 +488,10 @@ class iconButon extends StatelessWidget {
               child: InkWell(
                 splashColor: colorB3, // Splash color
                 onTap: () {
-                  print("s");
+                  storage.writeCounter(1);
+                  storage.readFavorite(favorite).then((value) {
+                    print(favorite);
+                  });
                 },
                 child: SizedBox(
                     width: 56,

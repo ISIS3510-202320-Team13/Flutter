@@ -4,13 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'package:geolocator/geolocator.dart';
+import 'package:parkez/ui/utils/file_reader.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:parkez/ui/theme/theme_constants.dart';
-import 'package:path_provider/path_provider.dart';
 
-import 'dart:io';
 
 class NearParkinsPage extends StatefulWidget {
   const NearParkinsPage(
@@ -29,40 +26,6 @@ class NearParkinsPage extends StatefulWidget {
 
   @override
   State<NearParkinsPage> createState() => _NearParkinsPageState();
-}
-
-class CounterStorage {
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/counter.txt');
-  }
-
-  Future<int> readCounter() async {
-    try {
-      final file = await _localFile;
-
-      // Read the file
-      final contents = await file.readAsString();
-
-      return int.parse(contents);
-    } catch (e) {
-      // If encountering an error, return 0
-      return 0;
-    }
-  }
-
-  Future<File> writeCounter(int counter) async {
-    final file = await _localFile;
-
-    // Write the file
-    return file.writeAsString('$counter');
-  }
 }
 
 class _NearParkinsPageState extends State<NearParkinsPage> {
@@ -193,6 +156,7 @@ class ListOfParkingLots extends StatelessWidget {
       var parking = parkings[key];
       t_parking.add(
           TileParkings(
+              uid: key,
               name: parking["name"],
               numberSpots: parking["availabilityCars"].toString(),
               price: parking["price"].toString(),
@@ -240,6 +204,7 @@ class ChoiceParking extends StatelessWidget {
       const TabInfo(text: 'ParkEz Choice', colorTab: Colors.green)
     ];
     TileParkings choosed = TileParkings(
+        uid: "0",
         name: "Ups! No tienes conexion a internet",
         numberSpots: "0",
         price: "0",
@@ -252,6 +217,7 @@ class ChoiceParking extends StatelessWidget {
       if (choice["price_match"]) {
         info.add(const TabInfo(text: 'Price Match', colorTab: Colors.green));
         choosed = TileParkings(
+            uid: choice["uid"],
             name: choice["name"],
             numberSpots: choice["availabilityCars"].toString(),
             price: choice["price"].toString(),
@@ -375,9 +341,9 @@ class TileParkings extends StatelessWidget {
     required this.price,
     required this.distance,
     required this.colorText,
-    required this.waitTime,
+    required this.waitTime, required this.uid,
   });
-
+  final String uid;
   final String name;
   final String waitTime;
   final String numberSpots;
@@ -390,7 +356,7 @@ class TileParkings extends StatelessWidget {
     return Material(
       child: InkWell(
         onTap: () {
-          print(name);
+          print(uid);
         },
         child: Card(
           color: colorBackground,
