@@ -83,7 +83,7 @@ class _HomePageState  extends State<HomePage> {
   }
 
   late GoogleMapController mapController;
-  String fullAdress = "Cargando...";
+  String fullAdress = "Ups!, parece que no tienes internet";
 
   double latitude = 0.0;
   double longitude = 0.0;

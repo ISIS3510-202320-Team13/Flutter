@@ -68,31 +68,27 @@ class CounterStorage {
 
 class _NearParkinsPageState extends State<NearParkinsPage> {
 
+  double latitude = 0.0;
+  double longitude = 0.0;
+
+  late Map choice = Map();
+  late Map parkings = Map();
+
   @override
   void initState() {
     super.initState();
 
-    double latitude = widget.latitude;
-    double longitude = widget.longitude;
-
+    latitude = widget.latitude;
+    longitude = widget.longitude;
+    _onListCreated();
     // Now you can use the latitude and longitude values as needed.
     print("Latitude: $latitude, Longitude: $longitude");
   }
 
   late GoogleMapController mapController;
 
-  double latitude = 0.0;
-  double longitude = 0.0;
   late final LatLng _center = LatLng(latitude, longitude);
 
-  Future<Position> getUserCurrentLocation() async {
-    await Geolocator.requestPermission().then((value){
-    }).onError((error, stackTrace) async {
-      await Geolocator.requestPermission();
-      print("ERROR$error");
-    });
-    return await Geolocator.getCurrentPosition();
-  }
 
   Future<http.Response> fetchNearParkings(double lat,double lon) {
     print('http://parkez.xyz:8082/parkings/near/bylatlon/$lat/$lon');
@@ -107,34 +103,50 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
       mapController.setMapStyle(string);
     });
 
-    getUserCurrentLocation().then((value) async {
+
       CameraPosition cameraPosition = CameraPosition(
-          target: LatLng(value.latitude, value.longitude),
+          target: LatLng(latitude, longitude),
           zoom: 15.0
       );
 
       controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-    });
+
   }
 
   void _onListCreated() {
-    getUserCurrentLocation().then((value) async {
-      fetchNearParkings(value.latitude, value.longitude).then((dir) async {
+    fetchNearParkings(latitude, longitude).then((dir) async {
 
-        var res = jsonDecode(dir.body);
-
-        for (String i in res.keys) {
-          print(res[i]);
-        }
-
+      var res = jsonDecode(dir.body);
+      setState(() {
+        choice = res['choice'];
+        res.remove("choice");
+        parkings = res;
       });
+
+
     });
 
   }
 
   @override
   Widget build(BuildContext context) {
-    _onListCreated();
+
+    late Marker choosed = Marker(
+      markerId: MarkerId(choice["name"]),
+      position: LatLng(choice["coordinates"]["latitude"], choice["coordinates"]["longitude"]),
+    );
+    List<Marker> markers = [];
+
+    for (String key in parkings.keys) {
+      var parking = parkings[key];
+      markers.add(
+        Marker(
+          markerId: MarkerId(parking["name"]),
+          position: LatLng(parking["coordinates"]["latitude"], parking["coordinates"]["longitude"]),
+        ),
+      );
+    }
+
     return Stack(
       children: [
         Container(
@@ -152,30 +164,8 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
               initialCameraPosition:
                   CameraPosition(target: _center, zoom: 15.5),
               markers: {
-                const Marker(
-                  markerId: MarkerId('SD'),
-                  position: LatLng(4.604810, -74.065840),
-                ),
-                const Marker(
-                  markerId: MarkerId('CityParking'),
-                  position: LatLng(4.604882, -74.065214),
-                ),
-                const Marker(
-                  markerId: MarkerId('CityU'),
-                  position: LatLng(4.603608, -74.067100),
-                ),
-                const Marker(
-                  markerId: MarkerId('Tequendama'),
-                  position: LatLng(4.604004, -74.065796),
-                ),
-                const Marker(
-                  markerId: MarkerId('Cinemateca'),
-                  position: LatLng(4.603686, -74.067227),
-                ),
-                const Marker(
-                  markerId: MarkerId('Aparcar'),
-                  position: LatLng(4.601211, -74.068153),
-                ),
+                choosed,
+                for ( Marker i in markers ) i,
               },
             ),
           ),
