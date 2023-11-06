@@ -152,7 +152,7 @@ void _onHomeCreated() {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 590, 0, 0),
-              child: reservationCard(fullAdress: "Parece que tienes una \n esperandote", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+              child: reservationCard(fullAdress: "Parece que tienes una \n reserva esperandote", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
             ),
             ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
           ],
@@ -312,6 +312,7 @@ class reservationCard extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         child: Icon(
                           Icons.directions_car,
+                          size: 40,
                           color: colorY1,
                         ),
                       ),
@@ -488,9 +489,9 @@ class iconButon extends StatelessWidget {
               child: InkWell(
                 splashColor: colorB3, // Splash color
                 onTap: () {
-                  storage.writeCounter(1);
-                  storage.readFavorite(favorite).then((value) {
-                    print(favorite);
+                  storage.writeSimpleFile(favorite, 'cra 22 a');
+                  storage.readAsMap(favorite).then((value) {
+                    print(value);
                   });
                 },
                 child: SizedBox(

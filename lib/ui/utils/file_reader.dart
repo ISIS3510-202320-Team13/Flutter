@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
@@ -8,32 +10,17 @@ class CounterStorage {
     return directory.path;
   }
 
-  Future<File> get _localFile async {
+  Future<File> _localFileByAtribute(String atribute) async {
     final path = await _localPath;
-    return File('$path/counter.txt');
+    return File('$path/$atribute.cnf');
   }
 
-  Future<int> readCounter() async {
+  Future<String> readSimpleFile(String atribute) async {
     try {
-      final file = await _localFile;
+      final file = await _localFileByAtribute(atribute);
 
       // Read the file
       final contents = await file.readAsString();
-
-      return int.parse(contents);
-    } catch (e) {
-      // If encountering an error, return 0
-      return 0;
-    }
-  }
-
-  Future<String> readFavorite(String fav) async {
-    try {
-      final file = await _localFile;
-
-      // Read the file
-      final contents = await file.readAsString();
-      print(contents);
       //var res = jsonDecode(dir.body);
       return contents;
     } catch (e) {
@@ -42,17 +29,30 @@ class CounterStorage {
     }
   }
 
-  Future<File> writeCounter(int counter) async {
-    final file = await _localFile;
-    print("object");
+  Future<File> writeSimpleFile(String atribute, String dir) async {
+    final file = await _localFileByAtribute(atribute);
     // Write the file
-    return file.writeAsString('$counter');
+    return file.writeAsString('$dir');
   }
 
-  Future<File> writeFavorite(int counter) async {
-    final file = await _localFile;
-    print("object");
+  Future<String> readAsMap(String atribute) async {
+    try {
+      final file = await _localFileByAtribute(atribute);
+
+      // Read the file
+      final contents = await file.readAsString();
+      var res = jsonDecode(contents);
+
+      return res;
+    } catch (e) {
+      // If encountering an error, return 0
+      return "";
+    }
+  }
+
+  Future<File> writeAsMap(String atribute, Map dir) async {
+    final file = await _localFileByAtribute(atribute);
     // Write the file
-    return file.writeAsString('$counter');
+    return file.writeAsString(dir.toString());
   }
 }

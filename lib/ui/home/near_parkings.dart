@@ -13,14 +13,6 @@ class NearParkinsPage extends StatefulWidget {
   const NearParkinsPage(
       {super.key, required this.latitude, required this.longitude});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
   final double latitude;
   final double longitude;
 
@@ -42,8 +34,6 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
     latitude = widget.latitude;
     longitude = widget.longitude;
     _onListCreated();
-    // Now you can use the latitude and longitude values as needed.
-    print("Latitude: $latitude, Longitude: $longitude");
   }
 
   late GoogleMapController mapController;
