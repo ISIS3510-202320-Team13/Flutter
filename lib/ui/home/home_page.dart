@@ -97,7 +97,20 @@ void _onHomeCreated() {
       print(fullAdress);
     });
   });
+  }
 
+  void _resevationHistory() {
+    storage.readAsMap('next_reservation').then((value) {
+      if (value != null){
+        Map values = {
+          "uid":"0bKf5TwHWQjsDuaTUa8A",
+          "time":"2023-11-17 08:45 AM",
+          "parking":"iWWykPE7NQJqRDde2Ave",
+          "enter_code":"FA3J45K"
+        };
+        storage.writeAsMap('next_reservation', values);
+      }
+    });
   }
 
 
@@ -490,8 +503,10 @@ class iconButon extends StatelessWidget {
                 splashColor: colorB3, // Splash color
                 onTap: () {
                   storage.writeSimpleFile(favorite, 'cra 22 a');
-                  storage.readAsMap(favorite).then((value) {
-                    print(value);
+                  storage.readAsMap('reservas').then((value) {
+                    if (value != null){
+                      print('null');
+                    }
                   });
                 },
                 child: SizedBox(
