@@ -54,6 +54,8 @@ class _HomePageState  extends State<HomePage> {
   bool setted = true;
 
   final LatLng _center = const LatLng(4.602796, -74.065841);
+  final TextEditingController latitudeController = TextEditingController();
+  final TextEditingController longitudeController = TextEditingController();
 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission()
@@ -69,6 +71,14 @@ class _HomePageState  extends State<HomePage> {
     print('http://parkez.xyz:8082/address/bylatlon/$lat/$lat');
     return http.get(Uri.parse('http://parkez.xyz:8082/address/bylatlon/$lat/$lon'),
         headers: {"X-API-Key": "my_api_key"});
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    latitudeController.dispose();
+    longitudeController.dispose();
+    super.dispose();
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -117,6 +127,26 @@ void _onHomeCreated() {
     });
   }
 
+  void _resevationPreferences() {
+    Map map = Map();
+    storage.readAsMap('work').then((value) {
+      if (value.toString() == map.toString()){
+        setState(() {
+          setted = false;
+        });
+      }
+      else{
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NearParkinsPage(key: null, latitude: 4.602997, longitude: -74.065332)),
+        );
+      }
+    });
+  }
+  void _saveResevationPreferences(double lat,double lon) {
+    String map = '{"longitude": $lat, "latitude": $lon}';
+    storage.writeSimpleFile('work', map);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +156,7 @@ void _onHomeCreated() {
     if (!setted){
       settings =  Stack(
         children: [Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/transparent.png'),
               fit: BoxFit.cover,
@@ -139,35 +169,100 @@ void _onHomeCreated() {
             ),
           ),
         ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30, 150, 30, 100),
-            child: SizedBox(
-              height: 580.0,
-              child: DecoratedBox(
-                decoration: const BoxDecoration(
-                    color: Colors.white,
-                ),
-                child: Column(
-                  children: <Widget>[
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(30, 250, 30, 0),
+              child: SizedBox(
+                height: 390.0,
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                      color: Colors.white,
+                  ),
+                  child: Column(
+                    children: <Widget>[
 
-                    // Usamos ListTile para ordenar la información del card como titulo, subtitulo e icono
-                    ListTile(
-                      contentPadding: EdgeInsets.fromLTRB(15, 10, 25, 0),
-                      title: Text('Titulo'),
-                      subtitle: Text(
-                          'Este es el subtitulo del card. Aqui podemos colocar descripción de este card.'),
-                      leading: Icon(Icons.home),
-                    ),
+                      // Usamos ListTile para ordenar la información del card como titulo, subtitulo e icono
+                      const ListTile(
+                        contentPadding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+                        title: Text('Store your preferences', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                        subtitle: Text(
+                            'Here you can save your preferences for the places you frequent to access them more quickly.'),
+                        leading: Icon(Icons.save, size: 40,),
+                      ),
+                      const Text(
+                          'Latitude.'),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                        child: TextField(
+                          controller: latitudeController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter a search term',
+                          ),
+                        ),
+                      ),
+                      const Text(
+                          'Longitude.'),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
+                        child: TextField(
+                          controller: longitudeController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter a search term',
+                          ),
+                        ),
+                      ),
+                      // Usamos una fila para ordenar los botones del card
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                double latitudeB;
+                                double longitudeB;
 
-                    // Usamos una fila para ordenar los botones del card
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        //FlatButton(onPressed: () => {}, child: Text('Aceptar')),
-                        //FlatButton(onPressed: () => {}, child: Text('Cancelar'))
-                      ],
-                    )
-                  ],
+                                // Parse latitude and longitude from text fields
+                                double? latitudeValue = double.tryParse(latitudeController.text);
+                                double? longitudeValue = double.tryParse(longitudeController.text);
+
+                                if (latitudeValue != null && longitudeValue != null) {
+                                  // Conversion succeeded, update the variables
+                                  latitudeB = latitudeValue;
+                                  longitudeB = longitudeValue;
+
+                                  // Now you can use the 'latitude' and 'longitude' variables as doubles
+                                  _saveResevationPreferences(latitudeB, longitudeB);
+
+                                  setState(() {
+                                    setted = true;
+                                  });
+                                } else {
+                                  // Handle the case where the input couldn't be parsed as a double
+                                  print('Invalid input: latitude and/or longitude');
+                                }
+                                },
+                              child: const Text(
+                                "Accept"
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  setted = true;
+                                });
+                              },
+                              child: const Text(
+                                "Cancel"
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -213,7 +308,7 @@ void _onHomeCreated() {
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
 
-        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1, storage: storage),
+        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1, storage: storage, resevationPreferences: _resevationPreferences),
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -401,13 +496,16 @@ class fastActionMenu extends StatelessWidget {
     super.key,
     required this.colorB1,
     required this.colorB3,
-    required this.colorY1, required this.storage,
+    required this.colorY1,
+    required this.storage,
+    required this.resevationPreferences,
   });
 
   final Color colorB1;
   final Color colorB3;
   final Color colorY1;
   final CounterStorage storage;
+  final Function() resevationPreferences;
 
   @override
   Widget build(BuildContext context) {
@@ -439,7 +537,9 @@ class fastActionMenu extends StatelessWidget {
                           colorB3: colorB3,
                           colorY1: colorY1,
                           favorite: 'search',
-                          storage: storage),
+                          storage: storage,
+                          resevationPreferences: resevationPreferences
+                      ),
                       textFastActions(
                           texto: "Search", colorB1: colorB1, tamanioFuente: 12),
                     ],
@@ -452,7 +552,9 @@ class fastActionMenu extends StatelessWidget {
                           colorB3: colorB3,
                           colorY1: colorY1,
                           favorite: 'work',
-                          storage: storage),
+                          storage: storage,
+                          resevationPreferences: resevationPreferences
+                      ),
                       textFastActions(
                           texto: "Work",
                           colorB1: colorB1,
@@ -467,7 +569,9 @@ class fastActionMenu extends StatelessWidget {
                           colorB3: colorB3,
                           colorY1: colorY1,
                           favorite: 'favorite',
-                          storage: storage),
+                          storage: storage,
+                          resevationPreferences: resevationPreferences
+                      ),
                       textFastActions(
                           texto: "Favorites",
                           colorB1: colorB1,
@@ -482,7 +586,9 @@ class fastActionMenu extends StatelessWidget {
                           colorB3: colorB3,
                           colorY1: colorY1,
                           favorite: 'recomended',
-                          storage: storage,),
+                          storage: storage,
+                          resevationPreferences: resevationPreferences
+                      ),
                       textFastActions(
                           texto: "Recomended",
                           colorB1: colorB1,
@@ -531,9 +637,12 @@ class iconButon extends StatelessWidget {
     required this.buscar,
     required this.colorB3,
     required this.colorY1,
-    required this.favorite, required this.storage,
+    required this.favorite,
+    required this.storage,
+    required this.resevationPreferences,
   });
 
+  final Function() resevationPreferences;
   final String favorite;
   final Color colorB1;
   final IconData buscar;
@@ -557,12 +666,7 @@ class iconButon extends StatelessWidget {
               child: InkWell(
                 splashColor: colorB3, // Splash color
                 onTap: () {
-                  storage.writeSimpleFile(favorite, 'cra 22 a');
-                  storage.readAsMap('reservas').then((value) {
-                    if (value != null){
-                      print('null');
-                    }
-                  });
+                  resevationPreferences();
                 },
                 child: SizedBox(
                     width: 56,
