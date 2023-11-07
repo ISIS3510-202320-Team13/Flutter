@@ -77,7 +77,7 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
   @override
   Widget build(BuildContext context) {
     late Marker choosed = Marker(
-      markerId: MarkerId("Ups! No tienes conexion a internet"),
+      markerId: MarkerId("Ups! Looks like you don't have internet connection"),
       position: LatLng(4.0, -74.0),
     );
     List<Marker> markers = [];
@@ -197,7 +197,7 @@ class ChoiceParking extends StatelessWidget {
     ];
     TileParkings choosed = TileParkings(
         uid: "0",
-        name: "Ups! No tienes conexion a internet",
+        name: "Ups! Looks like you don't have internet connection",
         numberSpots: "0",
         price: "0",
         distance: "0",

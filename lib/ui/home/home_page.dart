@@ -45,7 +45,7 @@ class _HomePageState  extends State<HomePage> {
   }
 
   late GoogleMapController mapController;
-  String fullAdress = "Ups!, parece que no tienes internet";
+  String fullAdress = "Ups! Looks like you don't have internet connection";
 
   double latitude = 0.0;
   double longitude = 0.0;
@@ -165,7 +165,7 @@ void _onHomeCreated() {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 590, 0, 0),
-              child: reservationCard(fullAdress: "Parece que tienes una \n reserva esperandote", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+              child: reservationCard(fullAdress: "Looks like you have \n an ongoing reservation", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
             ),
             ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
           ],
@@ -243,7 +243,7 @@ class ubicationCard extends StatelessWidget {
                             colorB1: colorB1,
                             tamanioFuente: 15),
                         textFastActions(
-                            texto: "25 puestos disponibles",
+                            texto: "25 empty spots",
                             colorB1: colorB2,
                             tamanioFuente: 12),
                       ],
@@ -386,7 +386,7 @@ class fastActionMenu extends StatelessWidget {
                           favorite: 'search',
                           storage: storage),
                       textFastActions(
-                          texto: "Buscar", colorB1: colorB1, tamanioFuente: 12),
+                          texto: "Search", colorB1: colorB1, tamanioFuente: 12),
                     ],
                   ),
                   Column(
@@ -399,7 +399,7 @@ class fastActionMenu extends StatelessWidget {
                           favorite: 'work',
                           storage: storage),
                       textFastActions(
-                          texto: "Trabajo",
+                          texto: "Work",
                           colorB1: colorB1,
                           tamanioFuente: 12),
                     ],
@@ -414,7 +414,7 @@ class fastActionMenu extends StatelessWidget {
                           favorite: 'favorite',
                           storage: storage),
                       textFastActions(
-                          texto: "Favoritos",
+                          texto: "Favorites",
                           colorB1: colorB1,
                           tamanioFuente: 12),
                     ],
@@ -429,7 +429,7 @@ class fastActionMenu extends StatelessWidget {
                           favorite: 'recomended',
                           storage: storage,),
                       textFastActions(
-                          texto: "Recomendados",
+                          texto: "Recomended",
                           colorB1: colorB1,
                           tamanioFuente: 12),
                     ],
