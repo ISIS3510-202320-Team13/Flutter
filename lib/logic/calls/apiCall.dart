@@ -4,18 +4,18 @@ import 'package:http/http.dart' as http;
 class ApiCall {
   final String baseUrl = 'http://api.parkez.xyz:8082/';
 
-  Future<List<dynamic>> fetch(String endpoint) async {
+  Future<Map<String,dynamic>> fetch(String endpoint) async {
     final response = await http.get(Uri.parse('$baseUrl$endpoint'));
 
     if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
+      Map<String,dynamic> data = json.decode(response.body);
       return data;
     } else {
       throw Exception('Failed to load entity');
     }
   }
 
-  Future<String> create(String endpoint, Map<String,String> data) async {
+  Future<Map<String,dynamic>> create(String endpoint, Map<String,String> data) async {
     final response = await http.post(
       Uri.parse('$baseUrl$endpoint'),
       headers: <String, String>{
@@ -31,7 +31,7 @@ class ApiCall {
     }
   }
 
-  Future<String> update(String endpoint, String uid, Map<String,String> data) async {
+  Future<Map<String,dynamic>> update(String endpoint, String uid, Map<String,String> data) async {
     final response = await http.put(
       Uri.parse('$baseUrl$endpoint/$uid'),
       headers: <String, String>{
