@@ -32,27 +32,38 @@ class CounterStorage {
   Future<File> writeSimpleFile(String atribute, String dir) async {
     final file = await _localFileByAtribute(atribute);
     // Write the file
+    print(file.toString());
     return file.writeAsString('$dir');
   }
 
-  Future<String> readAsMap(String atribute) async {
+  Future<Map> readAsMap(String atribute) async {
+    Map map = Map();
     try {
       final file = await _localFileByAtribute(atribute);
 
-      // Read the file
-      final contents = await file.readAsString();
-      var res = jsonDecode(contents);
 
-      return res;
+      if (!await file.exists()) {
+        return {};
+      }
+      else{
+        final contents = await file.readAsString();
+        Map<String, dynamic> res = jsonDecode(contents);
+        print(res.toString());
+
+        return res;
+
+      }
+
     } catch (e) {
       // If encountering an error, return 0
-      return "";
+      return map;
     }
   }
 
   Future<File> writeAsMap(String atribute, Map dir) async {
     final file = await _localFileByAtribute(atribute);
     // Write the file
+    print(dir.toString());
     return file.writeAsString(dir.toString());
   }
 }
