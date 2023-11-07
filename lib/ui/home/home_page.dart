@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,10 +46,13 @@ class _HomePageState  extends State<HomePage> {
   }
 
   late GoogleMapController mapController;
-  String fullAdress = "Ups! Looks like you don't have internet connection";
+  String fullAdress = "Ups! Lost internet connection";
 
   double latitude = 0.0;
   double longitude = 0.0;
+
+  bool setted = true;
+
   final LatLng _center = const LatLng(4.602796, -74.065841);
 
   Future<Position> getUserCurrentLocation() async {
@@ -117,11 +121,60 @@ void _onHomeCreated() {
   @override
   Widget build(BuildContext context) {
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
-    // try {
-    //   getUserData();
-    // } catch (e) {
-    //   print(e);
-    // }
+
+    Stack settings = Stack();
+    if (!setted){
+      settings =  Stack(
+        children: [Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/transparent.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 0.5, sigmaY: 0.5),
+            child: Container(
+              color: Colors.black.withOpacity(0.0),
+            ),
+          ),
+        ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(30, 150, 30, 100),
+            child: SizedBox(
+              height: 580.0,
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                    color: Colors.white,
+                ),
+                child: Column(
+                  children: <Widget>[
+
+                    // Usamos ListTile para ordenar la información del card como titulo, subtitulo e icono
+                    ListTile(
+                      contentPadding: EdgeInsets.fromLTRB(15, 10, 25, 0),
+                      title: Text('Titulo'),
+                      subtitle: Text(
+                          'Este es el subtitulo del card. Aqui podemos colocar descripción de este card.'),
+                      leading: Icon(Icons.home),
+                    ),
+
+                    // Usamos una fila para ordenar los botones del card
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        //FlatButton(onPressed: () => {}, child: Text('Aceptar')),
+                        //FlatButton(onPressed: () => {}, child: Text('Cancelar'))
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          )]
+      );
+    }
+
 
     return Scaffold(
       key: scaffoldKey,
@@ -162,12 +215,13 @@ void _onHomeCreated() {
 
         fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1, storage: storage),
         Column(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            reservationCard(fullAdress: "Looks like you have \nan ongoing reservation", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
             Padding(
-              padding: const EdgeInsets.fromLTRB(0, 590, 0, 0),
-              child: reservationCard(fullAdress: "Looks like you have \n an ongoing reservation", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
+              child: ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
             ),
-            ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
           ],
         ),
 
@@ -185,6 +239,7 @@ void _onHomeCreated() {
               child: const Icon(Icons.menu),
             ),
           ),
+          settings,
         ],
       ),
     );
