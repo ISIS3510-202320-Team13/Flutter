@@ -1,26 +1,24 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:geolocator/geolocator.dart';
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
 
+import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
 import 'package:parkez/ui/home/near_parkings.dart';
-import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
+import 'package:parkez/ui/utils/file_reader.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
+
 import 'package:http/http.dart' as http;
-import '../CommonFeatures/profile/profile.dart';
+
 
 
 
 class HomePage extends StatefulWidget {
-  HomePage({super.key});
+  const HomePage({super.key});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -31,15 +29,14 @@ class HomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  String fullAdress = "Cargando...";
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-
 class _HomePageState  extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
+
+  CounterStorage storage = CounterStorage();
 
   @override
   void initState() {
@@ -48,9 +45,10 @@ class _HomePageState  extends State<HomePage> {
   }
 
   late GoogleMapController mapController;
-  String fullAdress = "Cargando...";
+  String fullAdress = "Ups! Looks like you don't have internet connection";
 
-
+  double latitude = 0.0;
+  double longitude = 0.0;
   final LatLng _center = const LatLng(4.602796, -74.065841);
 
   Future<Position> getUserCurrentLocation() async {
@@ -64,8 +62,9 @@ class _HomePageState  extends State<HomePage> {
   }
 
   Future<http.Response> fetchDir(double lat,double lon) {
-    print('http://3.211.168.157:8000/address/bylatlon/$lat/$lat');
-    return http.get(Uri.parse('http://3.211.168.157:8000/address/bylatlon/$lat/$lon'));
+    print('http://parkez.xyz:8082/address/bylatlon/$lat/$lat');
+    return http.get(Uri.parse('http://parkez.xyz:8082/address/bylatlon/$lat/$lon'),
+        headers: {"X-API-Key": "my_api_key"});
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -86,16 +85,32 @@ class _HomePageState  extends State<HomePage> {
 
 void _onHomeCreated() {
   getUserCurrentLocation().then((value) async {
-    fetchDir(value.latitude, value.longitude).then((dir) async {
+    latitude = value.latitude;
+    longitude = value.longitude;
+    fetchDir(latitude, longitude).then((dir) async {
       var res = jsonDecode(dir.body)["loc"];
-
+      print(res);
       setState(() {
         fullAdress = '${res["road"]}, ${res["house_number"]}, ${res["city"]}';
+        print(fullAdress);
       });
       print(fullAdress);
     });
   });
+  }
 
+  void _resevationHistory() {
+    storage.readAsMap('next_reservation').then((value) {
+      if (value != null){
+        Map values = {
+          "uid":"0bKf5TwHWQjsDuaTUa8A",
+          "time":"2023-11-17 08:45 AM",
+          "parking":"iWWykPE7NQJqRDde2Ave",
+          "enter_code":"FA3J45K"
+        };
+        storage.writeAsMap('next_reservation', values);
+      }
+    });
   }
 
 
@@ -145,8 +160,16 @@ void _onHomeCreated() {
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
 
-        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1),
-        ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2),
+        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1, storage: storage),
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 590, 0, 0),
+              child: reservationCard(fullAdress: "Looks like you have \n an ongoing reservation", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+            ),
+            ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+          ],
+        ),
 
           Positioned(
             left: 10,
@@ -174,25 +197,29 @@ class ubicationCard extends StatelessWidget {
     required this.colorB1,
     required this.colorB2,
     required this.fullAdress,
+    required this.latitude,
+    required this.longitude
   });
 
   final Color colorB1;
   final Color colorB2;
   late String fullAdress;
+  late double latitude;
+  late double longitude;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.bottomCenter,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 50),
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
         child: Material(
           child: InkResponse(
             radius: 350.0,
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NearParkinsPage()),
+                MaterialPageRoute(builder: (context) => NearParkinsPage(key: null, latitude: latitude, longitude: longitude)),
               );
             },
             child: SizedBox(
@@ -216,7 +243,7 @@ class ubicationCard extends StatelessWidget {
                             colorB1: colorB1,
                             tamanioFuente: 15),
                         textFastActions(
-                            texto: "25 puestos disponibles",
+                            texto: "25 empty spots",
                             colorB1: colorB2,
                             tamanioFuente: 12),
                       ],
@@ -239,17 +266,93 @@ class ubicationCard extends StatelessWidget {
   }
 }
 
+class reservationCard extends StatelessWidget {
+  reservationCard({
+    super.key,
+    required this.colorB1,
+    required this.colorB2,
+    required this.fullAdress,
+    required this.latitude,
+    required this.longitude
+  });
+
+  final Color colorB1;
+  final Color colorB2;
+  late String fullAdress;
+  late double latitude;
+  late double longitude;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+        child: Material(
+          child: InkResponse(
+            radius: 350.0,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NearParkinsPage(key: null, latitude: latitude, longitude: longitude)),
+              );
+            },
+            child: SizedBox(
+              width: 350.0,
+              height: 100.0,
+              // make this container a button
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        textFastActions(
+                            texto: fullAdress,
+                            colorB1: colorB1,
+                            tamanioFuente: 13),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 0, 5, 0),
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.directions_car,
+                          size: 40,
+                          color: colorY1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class fastActionMenu extends StatelessWidget {
   const fastActionMenu({
     super.key,
     required this.colorB1,
     required this.colorB3,
-    required this.colorY1,
+    required this.colorY1, required this.storage,
   });
 
   final Color colorB1;
   final Color colorB3;
   final Color colorY1;
+  final CounterStorage storage;
 
   @override
   Widget build(BuildContext context) {
@@ -279,9 +382,11 @@ class fastActionMenu extends StatelessWidget {
                           colorB1: colorB1,
                           buscar: Icons.search,
                           colorB3: colorB3,
-                          colorY1: colorY1),
+                          colorY1: colorY1,
+                          favorite: 'search',
+                          storage: storage),
                       textFastActions(
-                          texto: "Buscar", colorB1: colorB1, tamanioFuente: 12),
+                          texto: "Search", colorB1: colorB1, tamanioFuente: 12),
                     ],
                   ),
                   Column(
@@ -290,9 +395,11 @@ class fastActionMenu extends StatelessWidget {
                           colorB1: colorB1,
                           buscar: Icons.work,
                           colorB3: colorB3,
-                          colorY1: colorY1),
+                          colorY1: colorY1,
+                          favorite: 'work',
+                          storage: storage),
                       textFastActions(
-                          texto: "Trabajo",
+                          texto: "Work",
                           colorB1: colorB1,
                           tamanioFuente: 12),
                     ],
@@ -303,9 +410,11 @@ class fastActionMenu extends StatelessWidget {
                           colorB1: colorB1,
                           buscar: Icons.star,
                           colorB3: colorB3,
-                          colorY1: colorY1),
+                          colorY1: colorY1,
+                          favorite: 'favorite',
+                          storage: storage),
                       textFastActions(
-                          texto: "Favoritos",
+                          texto: "Favorites",
                           colorB1: colorB1,
                           tamanioFuente: 12),
                     ],
@@ -316,9 +425,11 @@ class fastActionMenu extends StatelessWidget {
                           colorB1: colorB1,
                           buscar: Icons.people,
                           colorB3: colorB3,
-                          colorY1: colorY1),
+                          colorY1: colorY1,
+                          favorite: 'recomended',
+                          storage: storage,),
                       textFastActions(
-                          texto: "Recomendados",
+                          texto: "Recomended",
                           colorB1: colorB1,
                           tamanioFuente: 12),
                     ],
@@ -365,12 +476,15 @@ class iconButon extends StatelessWidget {
     required this.buscar,
     required this.colorB3,
     required this.colorY1,
+    required this.favorite, required this.storage,
   });
 
+  final String favorite;
   final Color colorB1;
   final IconData buscar;
   final Color colorB3;
   final Color colorY1;
+  final CounterStorage storage;
 
   @override
   Widget build(BuildContext context) {
@@ -388,7 +502,12 @@ class iconButon extends StatelessWidget {
               child: InkWell(
                 splashColor: colorB3, // Splash color
                 onTap: () {
-                  print("s");
+                  storage.writeSimpleFile(favorite, 'cra 22 a');
+                  storage.readAsMap('reservas').then((value) {
+                    if (value != null){
+                      print('null');
+                    }
+                  });
                 },
                 child: SizedBox(
                     width: 56,

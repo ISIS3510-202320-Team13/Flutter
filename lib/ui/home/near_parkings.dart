@@ -4,34 +4,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'package:geolocator/geolocator.dart';
+import 'package:parkez/ui/utils/file_reader.dart';
+import 'package:parkez/ui/theme/theme_constants.dart';
+import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
+
 import 'package:http/http.dart' as http;
 
-import 'package:parkez/ui/theme/theme_constants.dart';
 
 
-class NearParkinsPage extends StatelessWidget {
+class NearParkinsPage extends StatefulWidget {
+  const NearParkinsPage(
+      {super.key, required this.latitude, required this.longitude});
 
-  late GoogleMapController mapController;
-  final LatLng _center = const LatLng(4.603492, -74.066089);
+  final double latitude;
+  final double longitude;
 
-  Future<Position> getUserCurrentLocation() async {
-    await Geolocator.requestPermission().then((value){
-    }).onError((error, stackTrace) async {
-      await Geolocator.requestPermission();
-      print("ERROR$error");
-    });
-    return await Geolocator.getCurrentPosition();
+  @override
+  State<NearParkinsPage> createState() => _NearParkinsPageState();
+}
+
+class _NearParkinsPageState extends State<NearParkinsPage> {
+  double latitude = 0.0;
+  double longitude = 0.0;
+
+  late Map choice = Map();
+  late Map parkings = Map();
+
+  @override
+  void initState() {
+    super.initState();
+
+    latitude = widget.latitude;
+    longitude = widget.longitude;
+    _onListCreated();
   }
 
-  Future<http.Response> fetchNearParkings(double lat,double lon) {
-    print('http://3.211.168.157:8000/parkings/near/bylatlon/$lat/$lat');
-    return http.get(Uri.parse('http://3.211.168.157:8000/parkings/near/bylatlon/$lat/$lon'));
+  late GoogleMapController mapController;
+
+  late final LatLng _center = LatLng(latitude, longitude);
+
+  Future<http.Response> fetchNearParkings(double lat, double lon) {
+    return http.get(
+        Uri.parse('http://parkez.xyz:8082/parkings/near/bylatlon/$lat/$lon'),
+        headers: {"X-API-Key": "my_api_key"});
   }
 
   TextEditingController dateInput = TextEditingController();
-
-  NearParkinsPage({super.key});
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -39,35 +57,50 @@ class NearParkinsPage extends StatelessWidget {
       mapController.setMapStyle(string);
     });
 
-    getUserCurrentLocation().then((value) async {
-      CameraPosition cameraPosition = CameraPosition(
-          target: LatLng(value.latitude, value.longitude),
-          zoom: 15.0
-      );
+    CameraPosition cameraPosition =
+        CameraPosition(target: LatLng(latitude, longitude), zoom: 15.0);
 
-      controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-    });
+    controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
   void _onListCreated() {
-    getUserCurrentLocation().then((value) async {
-      fetchNearParkings(value.latitude, value.longitude).then((dir) async {
-
-        var res = jsonDecode(dir.body)["others"];
-
-
-
-        for (var age in res.keys) {
-          print(res[age]);
-        }
+    fetchNearParkings(latitude, longitude).then((dir) async {
+      var res = jsonDecode(dir.body);
+      setState(() {
+        choice = res['choice'];
+        res.remove("choice");
+        parkings = res;
       });
     });
-
   }
 
   @override
   Widget build(BuildContext context) {
-    _onListCreated();
+    late Marker choosed = Marker(
+      markerId: MarkerId("Ups! Looks like you don't have internet connection"),
+      position: LatLng(4.0, -74.0),
+    );
+    List<Marker> markers = [];
+
+    if (choice["name"] != null) {
+      choosed = Marker(
+        markerId: MarkerId(choice["name"]),
+        position: LatLng(choice["coordinates"]["latitude"],
+            choice["coordinates"]["longitude"]),
+      );
+
+      for (String key in parkings.keys) {
+        var parking = parkings[key];
+        markers.add(
+          Marker(
+            markerId: MarkerId(parking["name"]),
+            position: LatLng(parking["coordinates"]["latitude"],
+                parking["coordinates"]["longitude"]),
+          ),
+        );
+      }
+    }
+
     return Stack(
       children: [
         Container(
@@ -76,7 +109,7 @@ class NearParkinsPage extends StatelessWidget {
         )),
         Column(children: [
           SearchBarWText(),
-          ListOfParkingLots(),
+          ListOfParkingLots(parkings: parkings, choice: choice),
           Expanded(
             child: GoogleMap(
               zoomControlsEnabled: false,
@@ -85,30 +118,8 @@ class NearParkinsPage extends StatelessWidget {
               initialCameraPosition:
                   CameraPosition(target: _center, zoom: 15.5),
               markers: {
-                const Marker(
-                  markerId: MarkerId('SD'),
-                  position: LatLng(4.604810, -74.065840),
-                ),
-                const Marker(
-                  markerId: MarkerId('CityParking'),
-                  position: LatLng(4.604882, -74.065214),
-                ),
-                const Marker(
-                  markerId: MarkerId('CityU'),
-                  position: LatLng(4.603608, -74.067100),
-                ),
-                const Marker(
-                  markerId: MarkerId('Tequendama'),
-                  position: LatLng(4.604004, -74.065796),
-                ),
-                const Marker(
-                  markerId: MarkerId('Cinemateca'),
-                  position: LatLng(4.603686, -74.067227),
-                ),
-                const Marker(
-                  markerId: MarkerId('Aparcar'),
-                  position: LatLng(4.601211, -74.068153),
-                ),
+                choosed,
+                for (Marker i in markers) i,
               },
             ),
           ),
@@ -121,10 +132,32 @@ class NearParkinsPage extends StatelessWidget {
 class ListOfParkingLots extends StatelessWidget {
   const ListOfParkingLots({
     super.key,
+    required this.choice,
+    required this.parkings,
   });
+
+  final Map choice;
+  final Map parkings;
 
   @override
   Widget build(BuildContext context) {
+
+    List<TileParkings> t_parking = [];
+
+    for (String key in parkings.keys) {
+      var parking = parkings[key];
+      t_parking.add(
+          TileParkings(
+              uid: key,
+              name: parking["name"],
+              numberSpots: parking["availabilityCars"].toString(),
+              price: parking["price"].toString(),
+              distance: parking["distance"].toString(),
+              colorText: colorB3,
+              waitTime: ""),
+      );
+    }
+
     return Expanded(
       flex: 2,
       child: Material(
@@ -137,43 +170,8 @@ class ListOfParkingLots extends StatelessWidget {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  const ChoiceParking(),
-                  TileParkings(
-                      name: "CityU",
-                      numberSpots: "15",
-                      price: "110",
-                      distance: "300",
-                      colorText: colorB3,
-                      waitTime: ""
-                  ),
-                  TileParkings(
-                      name: "Tequendama",
-                      numberSpots: "23",
-                      price: "120",
-                      distance: "320",
-                      colorText: colorB3,
-                      waitTime: ""),
-                  TileParkings(
-                      name: "Cinemateca",
-                      numberSpots: "0",
-                      price: "90",
-                      distance: "540",
-                      colorText: Colors.red,
-                      waitTime: " - 5 min espera"),
-                  TileParkings(
-                      name: "Aparcar",
-                      numberSpots: "1",
-                      price: "90",
-                      distance: "712",
-                      colorText: colorB3,
-                      waitTime: ""),
-                  TileParkings(
-                      name: "Uniandes SD",
-                      numberSpots: "12",
-                      price: "110",
-                      distance: "930",
-                      colorText: colorB3,
-                      waitTime: ""),
+                  ChoiceParking(choice: choice),
+                  for (TileParkings i in t_parking) i,
                 ],
               ),
             ),
@@ -187,17 +185,47 @@ class ListOfParkingLots extends StatelessWidget {
 class ChoiceParking extends StatelessWidget {
   const ChoiceParking({
     super.key,
+    required this.choice,
   });
+
+  final Map choice;
 
   @override
   Widget build(BuildContext context) {
+    List<TabInfo> info = [
+      const TabInfo(text: 'ParkEz Choice', colorTab: Colors.green)
+    ];
+    TileParkings choosed = TileParkings(
+        uid: "0",
+        name: "Ups! Looks like you don't have internet connection",
+        numberSpots: "0",
+        price: "0",
+        distance: "0",
+        colorText: colorB3,
+        waitTime: "");
+
+
+    if (choice["price_match"]!=null) {
+      if (choice["price_match"]) {
+        info.add(const TabInfo(text: 'Price Match', colorTab: Colors.green));
+        choosed = TileParkings(
+            uid: choice["uid"],
+            name: choice["name"],
+            numberSpots: choice["availabilityCars"].toString(),
+            price: choice["price"].toString(),
+            distance: choice["distance"].toString(),
+            colorText: colorB3,
+            waitTime: "");
+      }
+
+    }
+
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            TabInfo(text: 'ParkEz Choice', colorTab: Colors.green),
-            TabInfo(text: 'Price Match', colorTab: Colors.green),
+            for (TabInfo i in info) i,
             TabInfo(text: 'Top 5 Ranked', colorTab: colorB2),
           ],
         ),
@@ -208,13 +236,7 @@ class ChoiceParking extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.all(4.0),
-            child: TileParkings(
-                name: "City Parking",
-                numberSpots: "25",
-                price: "90",
-                distance: "110",
-                colorText: colorB3,
-                waitTime: ""),
+            child: choosed,
           ),
         ),
       ],
@@ -311,9 +333,9 @@ class TileParkings extends StatelessWidget {
     required this.price,
     required this.distance,
     required this.colorText,
-    required this.waitTime,
+    required this.waitTime, required this.uid,
   });
-
+  final String uid;
   final String name;
   final String waitTime;
   final String numberSpots;
@@ -326,7 +348,10 @@ class TileParkings extends StatelessWidget {
     return Material(
       child: InkWell(
         onTap: () {
-          print('tapped');
+          //Navigator.push(
+           // context,
+           // MaterialPageRoute(builder: (context) => ParkingReservation(selectedParking: uid)),
+          // );
         },
         child: Card(
           color: colorBackground,
@@ -338,10 +363,10 @@ class TileParkings extends StatelessWidget {
                   // Note: Styles for TextSpans must be explicitly defined.
                   // Child text spans will inherit styles from parent
                   children: <TextSpan>[
-                    TextSpan(text: name, style: TextStyle(fontSize: 17.0,color: colorB1)),
                     TextSpan(
-                        text: waitTime,
-                        style: TextStyle(color: colorY1)),
+                        text: name,
+                        style: TextStyle(fontSize: 17.0, color: colorB1)),
+                    TextSpan(text: waitTime, style: TextStyle(color: colorY1)),
                   ],
                 ),
               ),
