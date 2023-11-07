@@ -5,8 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:parkez/ui/utils/file_reader.dart';
-import 'package:http/http.dart' as http;
 import 'package:parkez/ui/theme/theme_constants.dart';
+import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
+
+import 'package:http/http.dart' as http;
+
 
 
 class NearParkinsPage extends StatefulWidget {
@@ -41,7 +44,6 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
   late final LatLng _center = LatLng(latitude, longitude);
 
   Future<http.Response> fetchNearParkings(double lat, double lon) {
-    print('http://parkez.xyz:8082/parkings/near/bylatlon/$lat/$lon');
     return http.get(
         Uri.parse('http://parkez.xyz:8082/parkings/near/bylatlon/$lat/$lon'),
         headers: {"X-API-Key": "my_api_key"});
@@ -346,7 +348,10 @@ class TileParkings extends StatelessWidget {
     return Material(
       child: InkWell(
         onTap: () {
-          print(uid);
+          //Navigator.push(
+           // context,
+           // MaterialPageRoute(builder: (context) => ParkingReservation(selectedParking: uid)),
+          // );
         },
         child: Card(
           color: colorBackground,
