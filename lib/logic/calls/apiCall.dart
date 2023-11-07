@@ -15,7 +15,7 @@ class ApiCall {
     }
   }
 
-  Future<Map<String,dynamic>> create(String endpoint, Map<String,String> data) async {
+  Future<Map<String,dynamic>> create(String endpoint, Map<String,dynamic> data) async {
     final response = await http.post(
       Uri.parse('$baseUrl$endpoint'),
       headers: <String, String>{
@@ -31,7 +31,7 @@ class ApiCall {
     }
   }
 
-  Future<Map<String,dynamic>> update(String endpoint, String uid, Map<String,String> data) async {
+  Future<Map<String,dynamic>> update(String endpoint, String uid, Map<String,dynamic> data) async {
     final response = await http.put(
       Uri.parse('$baseUrl$endpoint/$uid'),
       headers: <String, String>{
