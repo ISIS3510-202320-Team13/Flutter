@@ -153,8 +153,6 @@ void _onHomeCreated() {
   void _getUserData() async{
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     Map<String,dynamic> res = await apiCall.fetch('users/${user.id}');
-    print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
-    print(res);
     userData =  res;
   }
 
