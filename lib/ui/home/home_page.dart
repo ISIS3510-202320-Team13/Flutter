@@ -16,6 +16,8 @@ import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:parkez/logic/calls/apiCall.dart';
 
+import '../commonFeatures/profile/profile.dart';
+
 
 
 class HomePage extends StatefulWidget {
@@ -288,7 +290,32 @@ void _onHomeCreated() {
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
-              child: Text('Welcome: ${userData['name']!}'),
+              child: ElevatedButton(
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(const EdgeInsets.all(20)),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Profile(userData)),
+                  );
+                },
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0,0,0,8.0),
+                      child: CircleAvatar(
+
+                        radius: 35,
+                        backgroundImage: NetworkImage('${userData?['picture']}'),
+                      ),
+                    ),
+                    Text(
+                      '${userData?['name']}'
+                    ),
+                  ],
+                ),
+              ),
             ),
             ListTile(
               title: const Row(
@@ -319,7 +346,7 @@ void _onHomeCreated() {
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            reservationCard(fullAdress: "Looks like you have \nan ongoing reservation", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+            reservationCard(fullAdress: "Laooks like you have \nan ongoing reservation", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
               child: ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
