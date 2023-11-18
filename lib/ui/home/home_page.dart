@@ -14,12 +14,13 @@ import 'package:parkez/ui/utils/file_reader.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 
 import 'package:http/http.dart' as http;
-
+import 'package:parkez/logic/calls/apiCall.dart';
 
 
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -36,8 +37,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState  extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
-
+  ApiCall apiCall = ApiCall();
   CounterStorage storage = CounterStorage();
+  Map<String, dynamic> userData = {};
 
   @override
   void initState() {
@@ -148,10 +150,15 @@ void _onHomeCreated() {
     storage.writeSimpleFile('work', map);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void _getUserData() async{
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
+    Map<String,dynamic> res = await apiCall.fetch('users/${user.id}');
+    userData =  res;
+  }
 
+  @override
+  Widget build(BuildContext context) {;
+    _getUserData();
     Stack settings = Stack();
     if (!setted){
       settings =  Stack(
@@ -281,7 +288,7 @@ void _onHomeCreated() {
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
-              child: Text('Welcome: ${user.email!}'),
+              child: Text('Welcome: ${userData['name']!}'),
             ),
             ListTile(
               title: const Row(
