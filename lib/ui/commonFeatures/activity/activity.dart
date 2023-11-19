@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:parkez/data/models/user.dart';
 import '../../theme/theme_constants.dart';
 import '../../utils/helper_widgets.dart';
 import 'package:intl/intl.dart';
 
-import '../profile/stats.dart';
+import 'package:parkez/ui/commonFeatures/profile/stats.dart';
 
 class Activity extends StatelessWidget {
-  late Map<String, dynamic>? user;
-  Activity(this.user, {super.key});
+  late User? user;
+  Activity({ required this.user, super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String,dynamic>> parkingActivity = user?['reservations'].values.toList().cast<Map<String,dynamic>>();
-    parkingActivity = parkingActivity.reversed.toList();
+    List<Map<String, dynamic>>? parkingActivity = user?.reservations?.values.toList().cast<Map<String,dynamic>>();
+    parkingActivity = parkingActivity?.reversed.toList();
     return Scaffold(
       floatingActionButton: FloatingActionButton(
 
@@ -39,7 +40,7 @@ class Activity extends StatelessWidget {
 
         body:
               ListView.builder(
-                  itemCount: parkingActivity.length,
+                  itemCount: parkingActivity?.length,
 
                   itemBuilder: (context, index){
                     return Padding(
@@ -54,9 +55,9 @@ class Activity extends StatelessWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                        Text(parkingActivity[index]['parking']['name'].toString()),
+                                        Text(parkingActivity![index]['parking']['name'].toString()),
                                         Text(
-                                            '${DateFormat('yyyy-MM-ddThh:mm').parse(parkingActivity[index]['entry_time']).toString().substring(0,16)}'
+                                            parkingActivity?[index]['entry_time']
                                         ),
                                   ],
                                 ),

@@ -14,7 +14,7 @@ class ShowParkingList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Parking List'),
+        title: Text('Reservation List'),
       ),
       body: Container(
         color: Colors.white,
@@ -40,10 +40,7 @@ class ShowParkingList extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(parkings![index]['parking']['name'].toString()),
-                                Text(
-                                           parkings?[index]['entry_time']
-                                        ),
-
+                                Text(parkings?[index]['entry_time']),
                               ],
                             ),
                             Align(
