@@ -10,6 +10,10 @@ class UserRepository {
   Future<User?> getUser() async {
     return _firebaseAuth.currentUser?.toUser;
   }
+
+  Future<String?> getUserId() async {
+    return _firebaseAuth.currentUser?.uid;
+  }
 }
 
 extension on firebase_auth.User {

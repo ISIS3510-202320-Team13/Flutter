@@ -43,7 +43,8 @@ class ParkingDetailsView extends StatelessWidget {
                 const SizedBox(height: 5.0),
                 itemDefinition('Price', "${_parking.price!}/min"),
                 const SizedBox(height: 5.0),
-                itemDefinition('Distance', "${_parking.distance!} mts"),
+                itemDefinition(
+                    'Distance', "${_parking.distance ?? '200 '} mts"),
                 const SizedBox(height: 5.0),
                 itemDefinition(
                     'Spots Available', "${_parking.spotsAvailable!}"),

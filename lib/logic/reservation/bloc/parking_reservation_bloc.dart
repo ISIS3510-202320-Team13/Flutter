@@ -3,18 +3,18 @@ import 'package:equatable/equatable.dart';
 import 'package:parkez/data/models/reservations/parking.dart';
 import 'package:parkez/data/models/reservations/payment.dart';
 import 'package:parkez/data/models/reservations/reservation.dart';
-import 'package:parkez/data/repositories/parking_reservation_repository.dart';
+import 'package:parkez/logic/reservation/reservation_controller.dart';
 
 part 'parking_reservation_event.dart';
 part 'parking_reservation_state.dart';
 
 class ParkingReservationBloc
     extends Bloc<ParkingReservationEvent, ParkingReservationState> {
-  final ParkingReservationRepository _parkingReservationRepository;
+  final ReservationController _reservationController;
 
   ParkingReservationBloc({
-    required ParkingReservationRepository parkingReservationRepository,
-  })  : _parkingReservationRepository = parkingReservationRepository,
+    required ReservationController reservationController,
+  })  : _reservationController = reservationController,
         super(const ParkingReservationState.parkingDetails()) {
     on<ParkingReservationParkingSelected>(_onParkingSelected);
     on<ParkingReservationReservationDetailsSelected>(
@@ -28,7 +28,7 @@ class ParkingReservationBloc
     ParkingReservationParkingSelected event,
     Emitter<ParkingReservationState> emit,
   ) {
-    _parkingReservationRepository.selectParking(parking: event.parking);
+    _reservationController.setParkingId(event.parking.id);
     emit(ParkingReservationState.reservationDetails(event.parking));
   }
 
@@ -36,8 +36,7 @@ class ParkingReservationBloc
     ParkingReservationReservationDetailsSelected event,
     Emitter<ParkingReservationState> emit,
   ) {
-    _parkingReservationRepository.selectReservation(
-        reservation: event.reservation);
+    _reservationController.selectReservation(reservation: event.reservation);
     emit(ParkingReservationState.paymentDetails(event.reservation));
   }
 
@@ -45,7 +44,8 @@ class ParkingReservationBloc
     ParkingReservationPaymentDetailsSelected event,
     Emitter<ParkingReservationState> emit,
   ) {
-    _parkingReservationRepository.selectPayment(payment: event.payment);
+    // TODO: Not implemented
+    // _reservationController.selectPayment(payment: event.payment);
     emit(ParkingReservationState.checkout(event.payment));
   }
 
@@ -53,15 +53,15 @@ class ParkingReservationBloc
     ParkingReservationCheckoutSubmitted event,
     Emitter<ParkingReservationState> emit,
   ) async {
-    await _parkingReservationRepository.createParkingReservation();
-    emit(const ParkingReservationState.confirmation());
+    Reservation newRes = await _reservationController.reserveParkingSpot();
+    emit(ParkingReservationState.confirmation(newRes));
   }
 
   void _onCancelRequested(
     ParkingReservationCancelRequested event,
     Emitter<ParkingReservationState> emit,
   ) async {
-    await _parkingReservationRepository.cancelReservation();
+    _reservationController.cancelReservation();
     emit(const ParkingReservationState.cancelled());
   }
 }

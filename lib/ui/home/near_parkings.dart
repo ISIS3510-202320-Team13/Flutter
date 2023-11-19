@@ -3,14 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parkez/data/models/reservations/parking.dart';
 
 import 'package:parkez/ui/utils/file_reader.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
-import 'package:parkez/ui/client/reservation_process/reservation_process_screen.dart';
+import 'package:parkez/ui/reservation_process/reservation_process_screen.dart';
 
 import 'package:http/http.dart' as http;
-
-
 
 class NearParkinsPage extends StatefulWidget {
   const NearParkinsPage(
@@ -141,20 +140,19 @@ class ListOfParkingLots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     List<TileParkings> t_parking = [];
 
     for (String key in parkings.keys) {
       var parking = parkings[key];
       t_parking.add(
-          TileParkings(
-              uid: key,
-              name: parking["name"],
-              numberSpots: parking["availabilityCars"].toString(),
-              price: parking["price"].toString(),
-              distance: parking["distance"].toString(),
-              colorText: colorB3,
-              waitTime: ""),
+        TileParkings(
+            uid: key,
+            name: parking["name"],
+            numberSpots: parking["availabilityCars"].toString(),
+            price: parking["price"].toString(),
+            distance: parking["distance"].toString(),
+            colorText: colorB3,
+            waitTime: ""),
       );
     }
 
@@ -204,8 +202,7 @@ class ChoiceParking extends StatelessWidget {
         colorText: colorB3,
         waitTime: "");
 
-
-    if (choice["price_match"]!=null) {
+    if (choice["price_match"] != null) {
       if (choice["price_match"]) {
         info.add(const TabInfo(text: 'Price Match', colorTab: Colors.green));
         choosed = TileParkings(
@@ -217,7 +214,6 @@ class ChoiceParking extends StatelessWidget {
             colorText: colorB3,
             waitTime: "");
       }
-
     }
 
     return Column(
@@ -333,7 +329,8 @@ class TileParkings extends StatelessWidget {
     required this.price,
     required this.distance,
     required this.colorText,
-    required this.waitTime, required this.uid,
+    required this.waitTime,
+    required this.uid,
   });
   final String uid;
   final String name;
@@ -348,10 +345,13 @@ class TileParkings extends StatelessWidget {
     return Material(
       child: InkWell(
         onTap: () {
-          //Navigator.push(
-           // context,
-           // MaterialPageRoute(builder: (context) => ParkingReservation(selectedParking: uid)),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ReservationProcessScreen(
+                    selectedParking: Parking.fromChambonada(
+                        uid, name, waitTime, numberSpots, price, distance))),
+          );
         },
         child: Card(
           color: colorBackground,

@@ -16,6 +16,13 @@ class Parking extends Equatable {
       this.distance,
       this.spotsAvailable});
 
+  Parking.fromChambonada(String uid, String this.name, String waitTime,
+      String numberSpots, String price, String distance)
+      : id = uid,
+        price = double.tryParse(price),
+        distance = double.tryParse(distance),
+        spotsAvailable = int.parse(numberSpots);
+
   static const empty = Parking(id: '');
 
   bool get isEmpty => this == Parking.empty;
