@@ -24,6 +24,9 @@ import 'package:parkez/ui/commonFeatures/profile/profile.dart';
 import 'package:connectivity/connectivity.dart';
 
 import '../../data/local/user_local_database.dart';
+import '../commonFeatures/activity/activity.dart';
+import '../commonFeatures/settings/settings.dart';
+import '../utils/helper_widgets.dart';
 
 
 
@@ -342,43 +345,76 @@ void _onHomeCreated() {
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all(const EdgeInsets.all(20)),
+              child: Column(
+               children: [CircleAvatar(
+                  radius: 40,
+                  backgroundImage: NetworkImage('${userData?.picture}'),
                 ),
+
+
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      '${userData?.name}',
+                      style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.white),
+                    ),
+                  ),
+                ),
+               ]
+              )
+            ),
+            Column(
+              children: [
+              verticalSpace(10.0),
+              ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Profile(user: userData)),
+                    MaterialPageRoute(
+                      builder: (context) => const Settings(),
+                    ),
                   );
                 },
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0,0,0,8.0),
-                      child: CircleAvatar(
-
-                        radius: 35,
-                        backgroundImage: NetworkImage('${userData?.picture}'),
-                      ),
-                    ),
-                    Text(
-                      '${userData?.name}',
-                    ),
-                  ],
-                ),
+                child: const Text('Settings'),
               ),
+              verticalSpace(10.0),
+              ElevatedButton(
+                onPressed: () {},
+                child: const Text('Payment'),
+              ),
+              verticalSpace(10.0),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Activity(user: userData),
+                    ),
+                  );
+                },
+                child: const Text('Activity'),
+              ),
+              verticalSpace(10.0),
+              ElevatedButton(
+                onPressed: () {},
+                child: const Text('Help'),
+              ),]
             ),
-            ListTile(
-              title: const Row(
-                children: [Text('Log out'), Icon(Icons.exit_to_app)],
-              ),
-              onTap: () {
-                context
-                    .read<AuthenticationBloc>()
-                    .add(const AuthenticationSignoutRequested());
+            Center(
+              child: ListTile(
+                title: const Row(
+                  children: [Text('Log out'), Icon(Icons.exit_to_app)],
+                ),
+                onTap: () {
+                  context
+                      .read<AuthenticationBloc>()
+                      .add(const AuthenticationSignoutRequested());
 
-              },
+                },
+              ),
             )
           ],
         ),
