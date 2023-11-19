@@ -187,12 +187,11 @@ void _onHomeCreated() {
 
   void _getUserData(AuthenticationBloc authenticationBloc) async {
     final connectivityResult = await InternetConnectionChecker().hasConnection;
-    print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-    print(connectivityResult);
+
     if (connectivityResult) {
       final user = authenticationBloc.state.user;
       Map<String, dynamic> res = await apiCall.fetch('users/${user.id}');
-
+      print(res);
       userData = User(
         id: user.id,
         email: res['email'],
@@ -201,6 +200,7 @@ void _onHomeCreated() {
         reservations: res['reservations'],
       );
       userLocalDatabaseImpl.saveUser(userData);
+      print(userData.reservations);
     } else {
 
       userData = await userLocalDatabaseImpl.getUser();
