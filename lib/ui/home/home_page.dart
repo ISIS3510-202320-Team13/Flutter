@@ -10,13 +10,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
 import 'package:parkez/ui/home/near_parkings.dart';
+import 'package:parkez/ui/home/show_parkingList.dart';
 import 'package:parkez/ui/utils/file_reader.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:parkez/logic/calls/apiCall.dart';
 
-import '../commonFeatures/profile/profile.dart';
+import 'package:parkez/ui/commonFeatures/profile/profile.dart';
 
 
 
@@ -37,11 +38,14 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+
+
 class _HomePageState  extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   ApiCall apiCall = ApiCall();
   CounterStorage storage = CounterStorage();
   Map<String, dynamic> userData = {};
+  List<Map<String, dynamic>> activeReservations = [];
 
   @override
   void initState() {
@@ -152,9 +156,31 @@ void _onHomeCreated() {
     storage.writeSimpleFile('work', map);
   }
 
+  void _getActiveReservations(data) {
+
+    // Extract reservations from the data map
+    Map<String, dynamic> reservations = data['reservations'];
+
+    // Create a sublist based on the 'status' key
+    List<Map<String, dynamic>> sublist = reservations.values
+        .whereType<Map<String, dynamic>>() // Filter out non-maps
+        .where((reservation) => reservation['status'] == 'Active')
+        .toList();
+
+    // Add pending reservations to the sublist
+    sublist.addAll(reservations.values
+        .whereType<Map<String, dynamic>>() // Filter out non-maps
+        .where((reservation) => reservation['status'] == 'Pending')
+        .toList());
+    activeReservations = sublist;
+
+
+  }
+
   void _getUserData() async{
     final user = context.select((AuthenticationBloc bloc) => bloc.state.user);
     Map<String,dynamic> res = await apiCall.fetch('users/${user.id}');
+    _getActiveReservations(res);
     userData =  res;
   }
 
@@ -345,11 +371,27 @@ void _onHomeCreated() {
         fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1, storage: storage, resevationPreferences: _resevationPreferences),
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            reservationCard(fullAdress: "Laooks like you have \nan ongoing reservation", colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+          children: <Widget>[
+                activeReservations.isEmpty
+                ? Container() // Show nothing if the list is empty
+                : activeReservationCard(
+                fullAdress: "Looks like you have \nan ongoing reservation",
+                colorB1: colorB1,
+                colorB2: colorB2,
+                parkingList: activeReservations,
+                ),
+
+
+
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
-              child: ubicationCard(fullAdress: fullAdress, colorB1: colorB1, colorB2: colorB2, latitude:latitude, longitude: longitude),
+              child: ubicationCard(
+                  fullAdress: fullAdress,
+                  colorB1: colorB1,
+                  colorB2: colorB2,
+                  latitude:latitude,
+                  longitude: longitude
+              ),
             ),
           ],
         ),
@@ -449,6 +491,81 @@ class ubicationCard extends StatelessWidget {
     );
   }
 }
+
+class activeReservationCard extends StatelessWidget {
+  activeReservationCard({
+    super.key,
+    required this.colorB1,
+    required this.colorB2,
+    required this.fullAdress,
+    required this.parkingList,
+  });
+
+  final Color colorB1;
+  final Color colorB2;
+  late String fullAdress;
+  late List<Map<String, dynamic>> parkingList;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+        child: Material(
+          child: InkResponse(
+            radius: 350.0,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ShowParkingList(parkings: parkingList)),
+              );
+            },
+            child: SizedBox(
+              width: 350.0,
+              height: 100.0,
+              // make this container a button
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        textFastActions(
+                            texto: fullAdress,
+                            colorB1: colorB1,
+                            tamanioFuente: 13),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 0, 5, 0),
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.directions_car,
+                          size: 40,
+                          color: colorY1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
 
 class reservationCard extends StatelessWidget {
   reservationCard({
