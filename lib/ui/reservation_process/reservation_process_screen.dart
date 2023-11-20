@@ -5,6 +5,7 @@ import 'package:parkez/data/models/reservations/payment.dart';
 import 'package:parkez/data/models/reservations/reservation.dart';
 import 'package:parkez/data/repositories/reservation_repository.dart';
 import 'package:parkez/data/repositories/user_repository.dart';
+import 'package:parkez/logic/connectivity_check/bloc/connectivity_check_bloc.dart';
 import 'package:parkez/logic/reservation/bloc/parking_reservation_bloc.dart';
 import 'package:parkez/logic/reservation/reservation_controller.dart';
 import 'package:parkez/logic/reservation/time_reservation/cubit/time_reservation_cubit.dart';
@@ -38,6 +39,10 @@ class ReservationProcessScreen extends StatelessWidget {
         BlocProvider<TimeReservationCubit>(
           create: (_) => TimeReservationCubit(),
         ),
+        BlocProvider<ConnectivityCheckBloc>(
+          create: (_) =>
+              ConnectivityCheckBloc()..add(const ConnectivityCheckStarted()),
+        )
       ],
       child: ReservationProcess(selectedParking: selectedParking),
     );
@@ -76,80 +81,136 @@ class _ReservationProcessState extends State<ReservationProcess> {
           setState(() {});
           print("CHANGE TO STEP: $_currentStep");
         },
-        child: Stepper(
-          type: StepperType.horizontal,
-          currentStep: _currentStep.index,
-          onStepCancel: () {
-            print("CANCEL REQUESTED");
-            BlocProvider.of<ParkingReservationBloc>(context)
-                .add(ParkingReservationCancelRequested());
-          },
-          onStepContinue: () {
-            print("ON STEP CONTINUE");
-            switch (_currentStep) {
-              case ReservationStep.parking:
-                print("PARKING SELECTED");
-                BlocProvider.of<ParkingReservationBloc>(context).add(
-                    ParkingReservationParkingSelected(widget.selectedParking));
-                break;
-              case ReservationStep.reservation:
-                print("RESERVATION SELECTED");
-
-                _reservation = _reservation.copyWith(
-                    timeToReserve: _duration, startDatetime: _startDatetime);
-
-                BlocProvider.of<ParkingReservationBloc>(context).add(
-                  ParkingReservationReservationDetailsSelected(
-                    _reservation,
-                  ),
-                );
-                break;
-              case ReservationStep.payment:
-                print("PAYMENT SELECTED");
-                BlocProvider.of<ParkingReservationBloc>(context).add(
-                  ParkingReservationPaymentDetailsSelected(
-                    mockPayment,
-                  ),
-                );
-                break;
-              case ReservationStep.checkout:
-                print("CHECKOUT ");
-                BlocProvider.of<ParkingReservationBloc>(context)
-                    .add(ParkingReservationCheckoutSubmitted());
-                break;
-              default:
-                break;
+        child: BlocBuilder<ConnectivityCheckBloc, ConnectivityCheckState>(
+          builder: (context, state) {
+            if (state.status == ConnectivityStatus.disconnected) {
+              return const NoInternetView();
             }
+            return Stepper(
+              type: StepperType.horizontal,
+              currentStep: _currentStep.index,
+              onStepCancel: () {
+                print("CANCEL REQUESTED");
+                BlocProvider.of<ParkingReservationBloc>(context)
+                    .add(ParkingReservationCancelRequested());
+              },
+              onStepContinue: () {
+                print("ON STEP CONTINUE");
+                switch (_currentStep) {
+                  case ReservationStep.parking:
+                    print("PARKING SELECTED");
+                    BlocProvider.of<ParkingReservationBloc>(context).add(
+                        ParkingReservationParkingSelected(
+                            widget.selectedParking));
+                    break;
+                  case ReservationStep.reservation:
+                    print("RESERVATION SELECTED $_startDatetime, $_duration");
+
+                    if (_startDatetime == null || _duration == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              "Please select a date and duration to continue"),
+                        ),
+                      );
+                      return;
+                    }
+
+                    _reservation = _reservation.copyWith(
+                        timeToReserve: _duration,
+                        startDatetime: _startDatetime);
+
+                    BlocProvider.of<ParkingReservationBloc>(context).add(
+                      ParkingReservationReservationDetailsSelected(
+                        _reservation,
+                      ),
+                    );
+                    break;
+                  case ReservationStep.payment:
+                    print("PAYMENT SELECTED");
+                    BlocProvider.of<ParkingReservationBloc>(context).add(
+                      ParkingReservationPaymentDetailsSelected(
+                        mockPayment,
+                      ),
+                    );
+                    break;
+                  case ReservationStep.checkout:
+                    print("CHECKOUT ");
+                    BlocProvider.of<ParkingReservationBloc>(context)
+                        .add(ParkingReservationCheckoutSubmitted());
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Reservation Successful"),
+                        duration: Duration(seconds: 5),
+                      ),
+                    );
+                    break;
+                  default:
+                    break;
+                }
+              },
+              steps: [
+                Step(
+                  isActive: _currentStep == ReservationStep.parking,
+                  title: const Text(''),
+                  content: ParkingDetailsView(parking: widget.selectedParking),
+                ),
+                Step(
+                    isActive: _currentStep == ReservationStep.reservation,
+                    title: const Text(''),
+                    content: ReservationDetailsView(
+                      onDateUpdated: (datetime) {
+                        _startDatetime = datetime;
+                      },
+                      onDurationUpdated: (duration) {
+                        _duration = duration;
+                      },
+                    )),
+                Step(
+                  isActive: _currentStep == ReservationStep.payment,
+                  title: const Text(''),
+                  content: const PaymentView(),
+                ),
+                Step(
+                    isActive: _currentStep == ReservationStep.checkout,
+                    title: const Text(''),
+                    content: const CheckoutView()),
+              ],
+            );
           },
-          steps: [
-            Step(
-              isActive: _currentStep == ReservationStep.parking,
-              title: const Text(''),
-              content: ParkingDetailsView(parking: widget.selectedParking),
-            ),
-            Step(
-                isActive: _currentStep == ReservationStep.reservation,
-                title: const Text(''),
-                content: ReservationDetailsView(
-                  onDateUpdated: (datetime) {
-                    _startDatetime = datetime;
-                  },
-                  onDurationUpdated: (duration) {
-                    _duration = duration;
-                  },
-                )),
-            Step(
-              isActive: _currentStep == ReservationStep.payment,
-              title: const Text(''),
-              content: const PaymentView(),
-            ),
-            Step(
-              isActive: _currentStep == ReservationStep.checkout,
-              title: const Text(''),
-              content: const CheckoutView(),
-            ),
-          ],
         ),
+      ),
+    );
+  }
+}
+
+class NoInternetView extends StatelessWidget {
+  const NoInternetView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('No Internet Connection'),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              BlocProvider.of<ConnectivityCheckBloc>(context)
+                  .add(const ConnectivityCheckStarted());
+            },
+            child: const Text('Retry'),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          )
+        ],
       ),
     );
   }
