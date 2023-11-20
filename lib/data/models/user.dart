@@ -3,16 +3,22 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 
 class User extends Equatable {
-  const User({required this.id, this.email,  this.name, this.picture, this.reservations});
+  const User(
+      {required this.id,
+      this.email,
+      this.name,
+      this.picture,
+      this.reservations});
 
   final String? name;
   final String? email;
   final String id;
   final String? picture;
-  final Map<String,dynamic>? reservations;
+  final Map<String, dynamic>? reservations;
 
   // Unauthenticated user
-  static const empty = User(id: '', email: '', name: '', picture: '', reservations: {'':''});
+  static const empty =
+      User(id: '', email: '', name: '', picture: '', reservations: {'': ''});
 
   bool get isEmpty => this == User.empty;
   bool get isNotEmpty => this != User.empty;
@@ -27,6 +33,16 @@ class User extends Equatable {
       'name': name,
       'picture': picture,
       'reservations': jsonEncode(reservations),
+    };
+  }
+
+  Map<String, dynamic> toDocument() {
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'picture': picture,
+      'reservations': reservations,
     };
   }
 

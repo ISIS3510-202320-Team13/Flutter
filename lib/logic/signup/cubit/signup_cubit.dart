@@ -4,6 +4,7 @@ import 'package:formz/formz.dart';
 import 'package:parkez/data/models/auth/email.dart';
 import 'package:parkez/data/models/auth/password.dart';
 import 'package:parkez/data/models/auth/signup/confirmed_password.dart';
+import 'package:parkez/data/models/auth/signup/username.dart';
 import 'package:parkez/data/repositories/authenthication_exceptions.dart';
 import 'package:parkez/data/repositories/authentication_repository.dart';
 
@@ -21,6 +22,20 @@ class SignupCubit extends Cubit<SignupState> {
         email: email,
         isValid: Formz.validate([
           email,
+          state.password,
+          state.confirmedPassword,
+        ]),
+      ),
+    );
+  }
+
+  void nameChanged(String value) {
+    final name = Username.dirty(value);
+    emit(
+      state.copyWith(
+        name: name,
+        isValid: Formz.validate([
+          state.email,
           state.password,
           state.confirmedPassword,
         ]),
@@ -71,6 +86,7 @@ class SignupCubit extends Cubit<SignupState> {
     try {
       await _authRepository.signUp(
         email: state.email.value,
+        name: state.name.value,
         password: state.password.value,
       );
       emit(state.copyWith(status: FormzSubmissionStatus.success));

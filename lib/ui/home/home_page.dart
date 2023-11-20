@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,11 +29,8 @@ import '../commonFeatures/activity/activity.dart';
 import '../commonFeatures/settings/settings.dart';
 import '../utils/helper_widgets.dart';
 
-
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -47,9 +45,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-
-
-class _HomePageState  extends State<HomePage> {
+class _HomePageState extends State<HomePage> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   ApiCall apiCall = ApiCall();
   UserLocalDatabaseImpl userLocalDatabaseImpl = UserLocalDatabaseImpl();
@@ -85,9 +81,10 @@ class _HomePageState  extends State<HomePage> {
     return await Geolocator.getCurrentPosition();
   }
 
-  Future<http.Response> fetchDir(double lat,double lon) {
+  Future<http.Response> fetchDir(double lat, double lon) {
     print('http://parkez.xyz:8082/address/bylatlon/$lat/$lat');
-    return http.get(Uri.parse('http://parkez.xyz:8082/address/bylatlon/$lat/$lon'),
+    return http.get(
+        Uri.parse('http://parkez.xyz:8082/address/bylatlon/$lat/$lon'),
         headers: {"X-API-Key": "my_api_key"});
   }
 
@@ -110,35 +107,36 @@ class _HomePageState  extends State<HomePage> {
             zoom: 18.0,
             tilt: 70);
 
-        controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+        controller
+            .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
       });
     });
   }
 
-void _onHomeCreated() {
-  getUserCurrentLocation().then((value) async {
-    latitude = value.latitude;
-    longitude = value.longitude;
-    fetchDir(latitude, longitude).then((dir) async {
-      var res = jsonDecode(dir.body)["loc"];
-      print(res);
-      setState(() {
-        fullAdress = '${res["road"]}, ${res["house_number"]}, ${res["city"]}';
+  void _onHomeCreated() {
+    getUserCurrentLocation().then((value) async {
+      latitude = value.latitude;
+      longitude = value.longitude;
+      fetchDir(latitude, longitude).then((dir) async {
+        var res = jsonDecode(dir.body)["loc"];
+        print(res);
+        setState(() {
+          fullAdress = '${res["road"]}, ${res["house_number"]}, ${res["city"]}';
+          print(fullAdress);
+        });
         print(fullAdress);
       });
-      print(fullAdress);
     });
-  });
   }
 
   void _resevationHistory() {
     storage.readAsMap('next_reservation').then((value) {
-      if (value != null){
+      if (value != null) {
         Map values = {
-          "uid":"0bKf5TwHWQjsDuaTUa8A",
-          "time":"2023-11-17 08:45 AM",
-          "parking":"iWWykPE7NQJqRDde2Ave",
-          "enter_code":"FA3J45K"
+          "uid": "0bKf5TwHWQjsDuaTUa8A",
+          "time": "2023-11-17 08:45 AM",
+          "parking": "iWWykPE7NQJqRDde2Ave",
+          "enter_code": "FA3J45K"
         };
         storage.writeAsMap('next_reservation', values);
       }
@@ -148,20 +146,22 @@ void _onHomeCreated() {
   void _resevationPreferences() {
     Map map = Map();
     storage.readAsMap('work').then((value) {
-      if (value.toString() == map.toString()){
+      if (value.toString() == map.toString()) {
         setState(() {
           setted = false;
         });
-      }
-      else{
+      } else {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => NearParkinsPage(key: null, latitude: 4.602997, longitude: -74.065332)),
+          MaterialPageRoute(
+              builder: (context) => NearParkinsPage(
+                  key: null, latitude: 4.602997, longitude: -74.065332)),
         );
       }
     });
   }
-  void _saveResevationPreferences(double lat,double lon) {
+
+  void _saveResevationPreferences(double lat, double lon) {
     String map = '{"longitude": $lat, "latitude": $lon}';
     storage.writeSimpleFile('work', map);
   }
@@ -182,21 +182,22 @@ void _onHomeCreated() {
         .where((reservation) => reservation['status'] == 'Pending')
         .toList());
     activeReservations = sublist ?? [];
-
-
-
-
   }
 
-  void _getUserData(AuthenticationBloc authenticationBloc) async {
+  void _getUserData() async {
     final connectivityResult = await InternetConnectionChecker().hasConnection;
 
     if (connectivityResult) {
-      final user = authenticationBloc.state.user;
-      Map<String, dynamic> res = await apiCall.fetch('users/${user.id}');
+      final user = firebase_auth.FirebaseAuth.instance.currentUser!;
+      Map<String, dynamic> res;
+      try {
+        res = await apiCall.fetch('users/${user.uid}');
+      } catch (e) {
+        res = User.empty.toDocument();
+      }
       print(res);
       userData = User(
-        id: user.id,
+        id: user.uid,
         email: res['email'],
         name: res['name'],
         picture: res['picture'],
@@ -205,21 +206,19 @@ void _onHomeCreated() {
       userLocalDatabaseImpl.saveUser(userData);
       print(userData.reservations);
     } else {
-
       userData = await userLocalDatabaseImpl.getUser();
     }
 
     _getActiveReservations();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    context.select((AuthenticationBloc bloc) => _getUserData(bloc));
+    _getUserData();
     Stack settings = Stack();
-    if (!setted){
-      settings =  Stack(
-        children: [Container(
+    if (!setted) {
+      settings = Stack(children: [
+        Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/transparent.png'),
@@ -233,107 +232,111 @@ void _onHomeCreated() {
             ),
           ),
         ),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(30, 250, 30, 0),
-              child: SizedBox(
-                height: 390.0,
-                child: DecoratedBox(
-                  decoration: const BoxDecoration(
-                      color: Colors.white,
-                  ),
-                  child: Column(
-                    children: <Widget>[
-
-                      // Usamos ListTile para ordenar la información del card como titulo, subtitulo e icono
-                      const ListTile(
-                        contentPadding: EdgeInsets.fromLTRB(15, 10, 15, 10),
-                        title: Text('Store your preferences', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                        subtitle: Text(
-                            'Here you can save your preferences for the places you frequent to access them more quickly.'),
-                        leading: Icon(Icons.save, size: 40,),
+        SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(30, 250, 30, 0),
+            child: SizedBox(
+              height: 390.0,
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: Column(
+                  children: <Widget>[
+                    // Usamos ListTile para ordenar la información del card como titulo, subtitulo e icono
+                    const ListTile(
+                      contentPadding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+                      title: Text(
+                        'Store your preferences',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                      const Text(
-                          'Latitude.'),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                        child: TextField(
-                          controller: latitudeController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Enter a search term',
-                          ),
+                      subtitle: Text(
+                          'Here you can save your preferences for the places you frequent to access them more quickly.'),
+                      leading: Icon(
+                        Icons.save,
+                        size: 40,
+                      ),
+                    ),
+                    const Text('Latitude.'),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                      child: TextField(
+                        controller: latitudeController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter a search term',
                         ),
                       ),
-                      const Text(
-                          'Longitude.'),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
-                        child: TextField(
-                          controller: longitudeController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Enter a search term',
-                          ),
+                    ),
+                    const Text('Longitude.'),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
+                      child: TextField(
+                        controller: longitudeController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter a search term',
                         ),
                       ),
-                      // Usamos una fila para ordenar los botones del card
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                double latitudeB;
-                                double longitudeB;
+                    ),
+                    // Usamos una fila para ordenar los botones del card
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              double latitudeB;
+                              double longitudeB;
 
-                                // Parse latitude and longitude from text fields
-                                double? latitudeValue = double.tryParse(latitudeController.text);
-                                double? longitudeValue = double.tryParse(longitudeController.text);
+                              // Parse latitude and longitude from text fields
+                              double? latitudeValue =
+                                  double.tryParse(latitudeController.text);
+                              double? longitudeValue =
+                                  double.tryParse(longitudeController.text);
 
-                                if (latitudeValue != null && longitudeValue != null) {
-                                  // Conversion succeeded, update the variables
-                                  latitudeB = latitudeValue;
-                                  longitudeB = longitudeValue;
+                              if (latitudeValue != null &&
+                                  longitudeValue != null) {
+                                // Conversion succeeded, update the variables
+                                latitudeB = latitudeValue;
+                                longitudeB = longitudeValue;
 
-                                  // Now you can use the 'latitude' and 'longitude' variables as doubles
-                                  _saveResevationPreferences(latitudeB, longitudeB);
+                                // Now you can use the 'latitude' and 'longitude' variables as doubles
+                                _saveResevationPreferences(
+                                    latitudeB, longitudeB);
 
-                                  setState(() {
-                                    setted = true;
-                                  });
-                                } else {
-                                  // Handle the case where the input couldn't be parsed as a double
-                                  print('Invalid input: latitude and/or longitude');
-                                }
-                                },
-                              child: const Text(
-                                "Accept"
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
                                 setState(() {
                                   setted = true;
                                 });
-                              },
-                              child: const Text(
-                                "Cancel"
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
+                              } else {
+                                // Handle the case where the input couldn't be parsed as a double
+                                print(
+                                    'Invalid input: latitude and/or longitude');
+                              }
+                            },
+                            child: const Text("Accept"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                setted = true;
+                              });
+                            },
+                            child: const Text("Cancel"),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
                 ),
               ),
             ),
-          )]
-      );
+          ),
+        )
+      ]);
     }
-
 
     return Scaffold(
       key: scaffoldKey,
@@ -342,32 +345,26 @@ void _onHomeCreated() {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Column(
-               children: [CircleAvatar(
-                  radius: 40,
-                  backgroundImage: NetworkImage('${userData?.picture}'),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
                 ),
-
-
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      '${userData?.name}',
-                      style: const TextStyle(
-                          fontSize: 20,
-                          color: Colors.white),
+                child: Column(children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: NetworkImage('${userData?.picture}'),
+                  ),
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        '${userData?.name}',
+                        style:
+                            const TextStyle(fontSize: 20, color: Colors.white),
+                      ),
                     ),
                   ),
-                ),
-               ]
-              )
-            ),
-            Column(
-              children: [
+                ])),
+            Column(children: [
               verticalSpace(10.0),
               ElevatedButton(
                 onPressed: () {
@@ -401,8 +398,8 @@ void _onHomeCreated() {
               ElevatedButton(
                 onPressed: () {},
                 child: const Text('Help'),
-              ),]
-            ),
+              ),
+            ]),
             Center(
               child: ListTile(
                 title: const Row(
@@ -412,7 +409,6 @@ void _onHomeCreated() {
                   context
                       .read<AuthenticationBloc>()
                       .add(const AuthenticationSignoutRequested());
-
                 },
               ),
             )
@@ -430,35 +426,35 @@ void _onHomeCreated() {
             initialCameraPosition:
                 CameraPosition(target: _center, zoom: 18.0, tilt: 70),
           ),
-
-        fastActionMenu(colorB1: colorB1, colorB3: colorB3, colorY1: colorY1, storage: storage, resevationPreferences: _resevationPreferences),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-                activeReservations.isEmpty
-                ? Container() // Show nothing if the list is empty
-                : activeReservationCard(
-                fullAdress: "Looks like you have \nan ongoing reservation",
-                colorB1: colorB1,
-                colorB2: colorB2,
-                parkingList: activeReservations,
-                ),
-
-
-
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
-              child: ubicationCard(
-                  fullAdress: fullAdress,
-                  colorB1: colorB1,
-                  colorB2: colorB2,
-                  latitude:latitude,
-                  longitude: longitude
+          fastActionMenu(
+              colorB1: colorB1,
+              colorB3: colorB3,
+              colorY1: colorY1,
+              storage: storage,
+              resevationPreferences: _resevationPreferences),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              activeReservations.isEmpty
+                  ? Container() // Show nothing if the list is empty
+                  : activeReservationCard(
+                      fullAdress:
+                          "Looks like you have \nan ongoing reservation",
+                      colorB1: colorB1,
+                      colorB2: colorB2,
+                      parkingList: activeReservations,
+                    ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
+                child: ubicationCard(
+                    fullAdress: fullAdress,
+                    colorB1: colorB1,
+                    colorB2: colorB2,
+                    latitude: latitude,
+                    longitude: longitude),
               ),
-            ),
-          ],
-        ),
-
+            ],
+          ),
           Positioned(
             left: 10,
             top: 10,
@@ -481,14 +477,13 @@ void _onHomeCreated() {
 }
 
 class ubicationCard extends StatelessWidget {
-  ubicationCard({
-    super.key,
-    required this.colorB1,
-    required this.colorB2,
-    required this.fullAdress,
-    required this.latitude,
-    required this.longitude
-  });
+  ubicationCard(
+      {super.key,
+      required this.colorB1,
+      required this.colorB2,
+      required this.fullAdress,
+      required this.latitude,
+      required this.longitude});
 
   final Color colorB1;
   final Color colorB2;
@@ -508,7 +503,9 @@ class ubicationCard extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NearParkinsPage(key: null, latitude: latitude, longitude: longitude)),
+                MaterialPageRoute(
+                    builder: (context) => NearParkinsPage(
+                        key: null, latitude: latitude, longitude: longitude)),
               );
             },
             child: SizedBox(
@@ -581,7 +578,9 @@ class activeReservationCard extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ShowParkingList(parkings: parkingList)),
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ShowParkingList(parkings: parkingList)),
               );
             },
             child: SizedBox(
@@ -628,17 +627,14 @@ class activeReservationCard extends StatelessWidget {
   }
 }
 
-
-
 class reservationCard extends StatelessWidget {
-  reservationCard({
-    super.key,
-    required this.colorB1,
-    required this.colorB2,
-    required this.fullAdress,
-    required this.latitude,
-    required this.longitude
-  });
+  reservationCard(
+      {super.key,
+      required this.colorB1,
+      required this.colorB2,
+      required this.fullAdress,
+      required this.latitude,
+      required this.longitude});
 
   final Color colorB1;
   final Color colorB2;
@@ -658,7 +654,9 @@ class reservationCard extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NearParkinsPage(key: null, latitude: latitude, longitude: longitude)),
+                MaterialPageRoute(
+                    builder: (context) => NearParkinsPage(
+                        key: null, latitude: latitude, longitude: longitude)),
               );
             },
             child: SizedBox(
@@ -752,8 +750,7 @@ class fastActionMenu extends StatelessWidget {
                           colorY1: colorY1,
                           favorite: 'search',
                           storage: storage,
-                          resevationPreferences: resevationPreferences
-                      ),
+                          resevationPreferences: resevationPreferences),
                       textFastActions(
                           texto: "Search", colorB1: colorB1, tamanioFuente: 12),
                     ],
@@ -767,12 +764,9 @@ class fastActionMenu extends StatelessWidget {
                           colorY1: colorY1,
                           favorite: 'work',
                           storage: storage,
-                          resevationPreferences: resevationPreferences
-                      ),
+                          resevationPreferences: resevationPreferences),
                       textFastActions(
-                          texto: "Work",
-                          colorB1: colorB1,
-                          tamanioFuente: 12),
+                          texto: "Work", colorB1: colorB1, tamanioFuente: 12),
                     ],
                   ),
                   Column(
@@ -784,8 +778,7 @@ class fastActionMenu extends StatelessWidget {
                           colorY1: colorY1,
                           favorite: 'favorite',
                           storage: storage,
-                          resevationPreferences: resevationPreferences
-                      ),
+                          resevationPreferences: resevationPreferences),
                       textFastActions(
                           texto: "Favorites",
                           colorB1: colorB1,
@@ -801,8 +794,7 @@ class fastActionMenu extends StatelessWidget {
                           colorY1: colorY1,
                           favorite: 'recomended',
                           storage: storage,
-                          resevationPreferences: resevationPreferences
-                      ),
+                          resevationPreferences: resevationPreferences),
                       textFastActions(
                           texto: "Recomended",
                           colorB1: colorB1,
