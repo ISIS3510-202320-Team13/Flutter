@@ -27,6 +27,8 @@ class SignupForm extends StatelessWidget {
           children: [
             _EmailInput(),
             const SizedBox(height: 8),
+            _NameInput(),
+            const SizedBox(height: 8),
             _PasswordInput(),
             const SizedBox(height: 8),
             _ConfirmPasswordInput(),
@@ -50,10 +52,33 @@ class _EmailInput extends StatelessWidget {
           onChanged: (email) => context.read<SignupCubit>().emailChanged(email),
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
-            labelText: 'email',
+            icon: const Icon(Icons.email),
+            labelText: 'Your Email',
             helperText: '',
             errorText:
                 state.email.displayError != null ? 'invalid email' : null,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _NameInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SignupCubit, SignupState>(
+      buildWhen: (previous, current) => previous.name != current.name,
+      builder: (context, state) {
+        return TextField(
+          key: const Key('signUpForm_nameInput_textField'),
+          onChanged: (name) => context.read<SignupCubit>().nameChanged(name),
+          keyboardType: TextInputType.name,
+          decoration: InputDecoration(
+            icon: const Icon(Icons.person),
+            labelText: 'Your Name',
+            helperText: '',
+            errorText: state.name.displayError != null ? 'invalid name' : null,
           ),
         );
       },
@@ -73,7 +98,8 @@ class _PasswordInput extends StatelessWidget {
               context.read<SignupCubit>().passwordChanged(password),
           obscureText: true,
           decoration: InputDecoration(
-            labelText: 'password',
+            icon: const Icon(Icons.lock),
+            labelText: 'Your Password',
             helperText: '',
             errorText:
                 state.password.displayError != null ? 'invalid password' : null,
@@ -99,7 +125,8 @@ class _ConfirmPasswordInput extends StatelessWidget {
               .confirmedPasswordChanged(confirmPassword),
           obscureText: true,
           decoration: InputDecoration(
-            labelText: 'confirm password',
+            icon: const Icon(Icons.lock),
+            labelText: 'Confirm Your Password',
             helperText: '',
             errorText: state.confirmedPassword.displayError != null
                 ? 'passwords do not match'
