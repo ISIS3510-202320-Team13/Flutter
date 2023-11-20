@@ -13,7 +13,7 @@ class ParkingReservationBloc
     extends Bloc<ParkingReservationEvent, ParkingReservationState> {
   final ReservationController _reservationController;
   final reservationTrace =
-      FirebasePerformance.instance.newTrace('_reservation_time');
+      FirebasePerformance.instance.newTrace('reservation_process_duration');
 
   ParkingReservationBloc({
     required ReservationController reservationController,
