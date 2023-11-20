@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parkez/data/repositories/authentication_repository.dart';
 import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
+import 'package:parkez/ui/auth/loading_user.dart';
 import 'package:parkez/ui/auth/signin_screen.dart';
 import 'package:parkez/ui/home/home_page.dart';
 import 'package:parkez/ui/router/app_router.dart';
@@ -83,7 +84,7 @@ class _AppViewState extends State<AppView> {
         builder: (context, state) {
           switch (state.status) {
             case AuthenticationStatus.authenticated:
-              return HomePage();
+              return LoadingUser();
             case AuthenticationStatus.unauthenticated:
               return const SigninScreen();
             default:

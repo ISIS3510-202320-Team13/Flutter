@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
+import 'package:parkez/ui/auth/loading_user.dart';
 import 'package:parkez/ui/auth/signin_screen.dart';
 import 'package:parkez/ui/auth/signup_screen.dart';
 import 'package:parkez/ui/home/home_page.dart';
@@ -16,7 +17,7 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (_) => BlocProvider.value(
                   value: _authenticationBloc,
-                  child: HomePage(),
+                  child: LoadingUser(),
                 ));
       case '/signin':
         return MaterialPageRoute(
@@ -34,7 +35,7 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (_) => BlocProvider.value(
                   value: _authenticationBloc,
-                  child: HomePage(),
+                  child: LoadingUser(),
                 ));
     }
   }

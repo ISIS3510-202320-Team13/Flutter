@@ -25,15 +25,10 @@ class UserLocalDatabaseImpl {
 
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE User (
-        id TEXT PRIMARY KEY,
-        email TEXT,
-        name TEXT,
-        picture TEXT,
-        reservations TEXT
-      )
-      ''');
+    CREATE TABLE User (id TEXT PRIMARY KEY, email TEXT, name TEXT, picture TEXT, reservations TEXT, type INTEGER)
+  ''');
   }
+
 
   Future<void> saveUser(User user) async {
     final db = await database;

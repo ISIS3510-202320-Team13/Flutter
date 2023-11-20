@@ -31,8 +31,8 @@ import '../utils/helper_widgets.dart';
 
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
+  HomePage({super.key, required this.userData});
+  late User userData;
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -44,19 +44,17 @@ class HomePage extends StatefulWidget {
   // always marked "final".
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState(userData);
 }
 
 
 
 class _HomePageState  extends State<HomePage> {
+  _HomePageState(this.userData);
+  late User userData;
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  ApiCall apiCall = ApiCall();
-  UserLocalDatabaseImpl userLocalDatabaseImpl = UserLocalDatabaseImpl();
   CounterStorage storage = CounterStorage();
-  User userData = User.empty;
   List<Map<String, dynamic>> activeReservations = [];
-
   @override
   void initState() {
     super.initState();
@@ -166,10 +164,16 @@ void _onHomeCreated() {
     storage.writeSimpleFile('work', map);
   }
 
-  void _getActiveReservations() {
+  Future<void> _getActiveReservations() async {
     // Extract reservations from the data map
     Map<String, dynamic>? reservations = userData.reservations;
-
+    //final response = await http.get(
+        //Uri.parse('http://api.parkez.xyz:8082/raw/filtered/documents/reservations/user/equal/L7chJqeIsSeakEHfOWxgnzuRBU53?type=str&format=Reservations'),
+        //headers: <String, String>{"X-API-KEY": "my_api_key",});
+    //if (response.statusCode != 200) {
+      //throw Exception('Failed to create entity');
+    //} else {
+      //Map<String,dynamic> reservations = json.decode(response.body);
     // Create a sublist based on the 'status' key
     List<Map<String, dynamic>>? sublist = reservations?.values
         .whereType<Map<String, dynamic>>() // Filter out non-maps
@@ -182,40 +186,14 @@ void _onHomeCreated() {
         .where((reservation) => reservation['status'] == 'Pending')
         .toList());
     activeReservations = sublist ?? [];
-
-
-
-
-  }
-
-  void _getUserData(AuthenticationBloc authenticationBloc) async {
-    final connectivityResult = await InternetConnectionChecker().hasConnection;
-
-    if (connectivityResult) {
-      final user = authenticationBloc.state.user;
-      Map<String, dynamic> res = await apiCall.fetch('users/${user.id}');
-      print(res);
-      userData = User(
-        id: user.id,
-        email: res['email'],
-        name: res['name'],
-        picture: res['picture'],
-        reservations: res['reservations'],
-      );
-      userLocalDatabaseImpl.saveUser(userData);
-      print(userData.reservations);
-    } else {
-
-      userData = await userLocalDatabaseImpl.getUser();
-    }
-
-    _getActiveReservations();
+    //}
   }
 
 
   @override
   Widget build(BuildContext context) {
-    context.select((AuthenticationBloc bloc) => _getUserData(bloc));
+  //  context.select((AuthenticationBloc bloc) => _getUserData(bloc));
+    _getActiveReservations();
     Stack settings = Stack();
     if (!setted){
       settings =  Stack(
@@ -355,8 +333,7 @@ void _onHomeCreated() {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      '${userData?.name}',
+                    child: Text('${userData?.name}',
                       style: const TextStyle(
                           fontSize: 20,
                           color: Colors.white),
