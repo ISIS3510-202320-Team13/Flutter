@@ -3,20 +3,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parkez/data/models/reservations/parking.dart';
 import 'package:parkez/data/models/reservations/payment.dart';
 import 'package:parkez/data/models/reservations/reservation.dart';
-import 'package:parkez/data/repositories/parking_reservation_repository.dart';
+import 'package:parkez/data/repositories/reservation_repository.dart';
+import 'package:parkez/data/repositories/user_repository.dart';
 import 'package:parkez/logic/reservation/bloc/parking_reservation_bloc.dart';
+import 'package:parkez/logic/reservation/reservation_controller.dart';
 import 'package:parkez/logic/reservation/time_reservation/cubit/time_reservation_cubit.dart';
-import 'package:parkez/ui/client/reservation_process/widgets/parking_view.dart';
-import 'package:parkez/ui/client/reservation_process/widgets/reservation_view.dart';
+import 'package:parkez/ui/reservation_process/widgets/parking_view.dart';
+import 'package:parkez/ui/reservation_process/widgets/reservation_view.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 
 import 'widgets/payment_view.dart';
 import 'widgets/checkout_view.dart';
 
-class ParkingReservation extends StatelessWidget {
+class ReservationProcessScreen extends StatelessWidget {
   final Parking selectedParking;
 
-  const ParkingReservation({
+  const ReservationProcessScreen({
     super.key,
     required this.selectedParking,
   });
@@ -25,47 +27,39 @@ class ParkingReservation extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
+        BlocProvider<ParkingReservationBloc>(
           create: (_) => ParkingReservationBloc(
-            parkingReservationRepository:
-                context.read<ParkingReservationRepository>(),
+            reservationController: ReservationController(
+              reservationRepository: ReservationRepository(),
+              userRepository: UserRepository(),
+            ),
           ),
         ),
-        BlocProvider(
-          create: (context) => TimeReservationCubit(),
+        BlocProvider<TimeReservationCubit>(
+          create: (_) => TimeReservationCubit(),
         ),
       ],
-      child: ReservationProcessScreen(selectedParking: selectedParking),
+      child: ReservationProcess(selectedParking: selectedParking),
     );
   }
 }
 
-class ReservationProcessScreen extends StatefulWidget {
+class ReservationProcess extends StatefulWidget {
   final Parking selectedParking;
-  ReservationProcessScreen({super.key, required this.selectedParking});
+  ReservationProcess({super.key, required this.selectedParking});
 
   @override
-  State<ReservationProcessScreen> createState() =>
-      _ReservationProcessScreenState();
+  State<ReservationProcess> createState() => _ReservationProcessState();
 }
 
-class _ReservationProcessScreenState extends State<ReservationProcessScreen> {
-  // TODO: This should be passed in from the previous screen
-  final Parking mockParking = const Parking(
-    id: '1',
-    name: 'Parking 1',
-  );
-
-  final Reservation mockReservation = Reservation(
-    id: '1',
-    startDatetime: DateTime.now(),
-    endDatetime: DateTime.now().add(const Duration(hours: 1)),
-  );
-
+class _ReservationProcessState extends State<ReservationProcess> {
   final Payment mockPayment = const Payment(
       id: '1', price: 13000, paymentMethod: PaymentMethods.creditCard);
 
   ReservationStep _currentStep = ReservationStep.parking;
+  Reservation _reservation = Reservation.empty;
+  DateTime? _startDatetime;
+  double? _duration;
 
   @override
   Widget build(BuildContext context) {
@@ -94,16 +88,19 @@ class _ReservationProcessScreenState extends State<ReservationProcessScreen> {
             print("ON STEP CONTINUE");
             switch (_currentStep) {
               case ReservationStep.parking:
-                // TODO: Don't do a mock parking
                 print("PARKING SELECTED");
                 BlocProvider.of<ParkingReservationBloc>(context).add(
                     ParkingReservationParkingSelected(widget.selectedParking));
                 break;
               case ReservationStep.reservation:
                 print("RESERVATION SELECTED");
+
+                _reservation = _reservation.copyWith(
+                    timeToReserve: _duration, startDatetime: _startDatetime);
+
                 BlocProvider.of<ParkingReservationBloc>(context).add(
                   ParkingReservationReservationDetailsSelected(
-                    mockReservation,
+                    _reservation,
                   ),
                 );
                 break;
@@ -127,35 +124,28 @@ class _ReservationProcessScreenState extends State<ReservationProcessScreen> {
           steps: [
             Step(
               isActive: _currentStep == ReservationStep.parking,
-              // label: const Text('Parking Details'),
               title: const Text(''),
               content: ParkingDetailsView(parking: widget.selectedParking),
             ),
             Step(
                 isActive: _currentStep == ReservationStep.reservation,
-                // label: const Text('Reservation Details'),
                 title: const Text(''),
                 content: ReservationDetailsView(
-                  onReservationUpdated: (reservation) {
-                    print("RESERVATION UPDATED");
-                    BlocProvider.of<ParkingReservationBloc>(context).add(
-                      ParkingReservationReservationDetailsSelected(
-                        reservation,
-                      ),
-                    );
+                  onDateUpdated: (datetime) {
+                    _startDatetime = datetime;
+                  },
+                  onDurationUpdated: (duration) {
+                    _duration = duration;
                   },
                 )),
             Step(
               isActive: _currentStep == ReservationStep.payment,
-              // label: const Text('Payment'),
               title: const Text(''),
               content: const PaymentView(),
             ),
             Step(
               isActive: _currentStep == ReservationStep.checkout,
-              // label: const Text('Checkout'),
               title: const Text(''),
-              // content: Center(child: const Text('Checkout')),
               content: const CheckoutView(),
             ),
           ],

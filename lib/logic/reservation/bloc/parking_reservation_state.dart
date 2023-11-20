@@ -34,8 +34,9 @@ class ParkingReservationState extends Equatable {
   const ParkingReservationState.checkout(Payment payment)
       : this._(step: ReservationStep.checkout, payment: payment);
 
-  const ParkingReservationState.confirmation()
-      : this._(step: ReservationStep.confirmation);
+  const ParkingReservationState.confirmation(Reservation finalReservation)
+      : this._(
+            step: ReservationStep.confirmation, reservation: finalReservation);
 
   const ParkingReservationState.cancelled()
       : this._(step: ReservationStep.cancelled);
