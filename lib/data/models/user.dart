@@ -17,8 +17,13 @@ class User extends Equatable {
   final Map<String, dynamic>? reservations;
 
   // Unauthenticated user
-  static const empty =
-      User(id: '', email: '', name: '', picture: '', reservations: {'': ''});
+  static const empty = User(
+      id: '',
+      email: '',
+      name: '',
+      picture:
+          'https://st3.depositphotos.com/9998432/13335/v/1600/depositphotos_133352010-stock-illustration-default-placeholder-man-and-woman.jpg',
+      reservations: {'': ''});
 
   bool get isEmpty => this == User.empty;
   bool get isNotEmpty => this != User.empty;

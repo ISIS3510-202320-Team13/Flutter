@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:parkez/data/local/user_local_database.dart';
 import 'package:parkez/data/models/user.dart';
+import 'package:parkez/data/repositories/user_repository.dart';
 
 import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
 import 'package:parkez/ui/home/near_parkings.dart';
@@ -70,6 +71,8 @@ class _HomePageState extends State<HomePage> {
   final LatLng _center = const LatLng(4.602796, -74.065841);
   final TextEditingController latitudeController = TextEditingController();
   final TextEditingController longitudeController = TextEditingController();
+
+  final UserRepository _userRepository = UserRepository();
 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission()

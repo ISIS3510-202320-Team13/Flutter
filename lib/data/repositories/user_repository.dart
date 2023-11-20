@@ -15,8 +15,20 @@ class UserRepository {
       : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
         _db = firestore ?? FirebaseFirestore.instance;
 
-  Future<User?> getUser() async {
+  Future<User?> getUserAuth() async {
     return _firebaseAuth.currentUser?.toUser;
+  }
+
+  Future<Map<String, dynamic>> getUserCollection() async {
+    final user = _firebaseAuth.currentUser?.toUser;
+    return await _db.collection(usersCollPath).doc(user?.id).get().then((doc) {
+      if (doc.exists) {
+        return doc.data()!.addEntries([MapEntry('id', doc.id)])
+            as Map<String, dynamic>;
+      } else {
+        return User.empty.toDocument();
+      }
+    });
   }
 
   Future<String?> getUserId() async {
