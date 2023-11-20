@@ -1,6 +1,7 @@
 import 'package:parkez/data/models/reservations/reservation.dart';
 import 'package:parkez/data/repositories/reservation_repository.dart';
 import 'package:parkez/data/repositories/user_repository.dart';
+import 'package:parkez/logic/calls/apiCall.dart';
 
 class ReservationController {
   String? parkingId;
@@ -8,6 +9,8 @@ class ReservationController {
 
   final ReservationRepository _reservationRepository;
   final UserRepository _userRepository;
+
+  ApiCall apiCall = ApiCall();
 
   ReservationController({
     ReservationRepository? reservationRepository,
@@ -62,10 +65,21 @@ class ReservationController {
       timeToReserve: currentRes.timeToReserve,
     );
 
+    Map request = {
+      "entry_time": currentRes.startDatetime.toString(),
+      "exit_time": currentRes.endDatetime.toString(),
+      "parking": parkingId,
+      "status": "Reserved",
+      "user": userId,
+      "time_to_reserve": currentRes.timeToReserve,
+    };
+
+    apiCall.create('reservations', request);
+
     // 2. Update the parking spot to be reserved
     // TODO
 
-    return await _reservationRepository.addReservation(oldRes);
+    return oldRes;
   }
 
   void cancelReservation() {

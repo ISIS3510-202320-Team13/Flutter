@@ -16,7 +16,7 @@ class ApiCall {
     }
   }
 
-  Future<Map<String,dynamic>> create(String endpoint, Map<String,dynamic> data) async {
+  Future<Map<String,dynamic>> create(String endpoint, Map<dynamic,dynamic> data) async {
     final response = await http.post(
       Uri.parse('$baseUrl$endpoint'),
       headers: <String, String>{"X-API-KEY": "my_api_key",
@@ -44,6 +44,7 @@ class ApiCall {
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
+      print(response.statusCode); 
       throw Exception('Failed to update entity');
     }
   }
