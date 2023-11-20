@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -62,7 +63,10 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
     controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
-  void _onListCreated() {
+  void _onListCreated() async {
+    Trace fetchNearParkingsTrace =
+        FirebasePerformance.instance.newTrace("fetch_near_parkings_duration");
+    await fetchNearParkingsTrace.start();
     fetchNearParkings(latitude, longitude).then((dir) async {
       var res = jsonDecode(dir.body);
       setState(() {
@@ -71,6 +75,7 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
         parkings = res;
       });
     });
+    await fetchNearParkingsTrace.stop();
   }
 
   @override
