@@ -40,6 +40,9 @@ class ParkingReservationBloc
     ParkingReservationReservationDetailsSelected event,
     Emitter<ParkingReservationState> emit,
   ) {
+    if (event.reservation.isEmpty) {
+      return;
+    }
     _reservationController.selectReservation(reservation: event.reservation);
     emit(ParkingReservationState.paymentDetails(event.reservation));
   }

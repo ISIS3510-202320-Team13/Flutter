@@ -6,8 +6,13 @@ class ApiCall {
   final String baseUrl = 'http://api.parkez.xyz:8082/';
 
   Future<Map<String, dynamic>> fetch(String endpoint) async {
-    final response = await http.get(Uri.parse('$baseUrl$endpoint'),
-        headers: {"X-API-KEY": "my_api_key"});
+    http.Response response;
+    try {
+      response = await http.get(Uri.parse('$baseUrl$endpoint'),
+          headers: {"X-API-KEY": "my_api_key"});
+    } catch (e) {
+      return {'error': e};
+    }
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
