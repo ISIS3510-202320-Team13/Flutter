@@ -63,6 +63,7 @@ class ParkingReservationBloc
     Reservation newRes = await _reservationController.reserveParkingSpot();
     emit(ParkingReservationState.confirmation(newRes));
     reservationTrace.putAttribute("status", "confirmed");
+    reservationTrace.putAttribute("step", "confirmation");
     await reservationTrace.stop();
   }
 
@@ -73,6 +74,7 @@ class ParkingReservationBloc
     _reservationController.cancelReservation();
     emit(const ParkingReservationState.cancelled());
     reservationTrace.putAttribute("status", "cancelled");
+    reservationTrace.putAttribute("step", event.step.toString());
     await reservationTrace.stop();
   }
 }
