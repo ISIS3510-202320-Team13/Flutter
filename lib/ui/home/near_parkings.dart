@@ -1,16 +1,14 @@
-import 'dart:convert';
-
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parkez/data/models/parking.dart';
+import 'package:parkez/data/repositories/parking_repository.dart';
+import 'package:parkez/logic/calls/apiCall.dart';
+import 'package:parkez/logic/geolocation/harvesine.dart';
 
-import 'package:parkez/ui/utils/file_reader.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';
 import 'package:parkez/ui/reservation_process/reservation_process_screen.dart';
-
-import 'package:http/http.dart' as http;
 
 class NearParkinsPage extends StatefulWidget {
   const NearParkinsPage(
@@ -27,8 +25,11 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
   double latitude = 0.0;
   double longitude = 0.0;
 
-  late Map choice = Map();
-  late Map parkings = Map();
+  final ParkingRepository _parkingRepository = ParkingRepository();
+  final ApiCall _api = ApiCall();
+
+  late Parking choice = Parking.empty;
+  late List<Parking> parkings = [];
 
   @override
   void initState() {
@@ -43,11 +44,67 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
 
   late final LatLng _center = LatLng(latitude, longitude);
 
-  Future<http.Response> fetchNearParkings(double lat, double lon) {
-    // TODO: Failover to parking repository
-    return http.get(
-        Uri.parse('http://parkez.xyz:8082/parkings/near/bylatlon/$lat/$lon'),
-        headers: {"X-API-Key": "my_api_key"});
+  Future<Map<String, dynamic>> _fetchNearParkingsAPI(
+      double lat, double lon) async {
+    try {
+      Map<String, dynamic> res = await _api
+          .fetch('http://parkez.xyz:8082/parkings/near/bylatlon/$lat/$lon');
+
+      if (res.containsKey('error')) {
+        throw Exception('Failed to load parkings: ${res['error']}');
+      } else if (res.isEmpty) {
+        return {};
+      }
+
+      choice = res['choice'];
+      res.remove("choice");
+      return {
+        'choice': choice,
+        'parkings': res,
+      };
+    } catch (e) {
+      print(e);
+      throw Exception('Failed to load parkings: ${e.toString()}');
+    }
+  }
+
+  Future<Map<String, dynamic>> _fetchNearParkingsRepository(
+      double lat, double lon) async {
+    List<Parking> parkingList =
+        await _parkingRepository.getNearParkings(latitude, longitude);
+
+    if (parkingList.isEmpty) {
+      return {};
+    }
+
+    Parking choice = parkingList.reduce((a, b) => b.isEmpty
+        ? a
+        : a.isEmpty
+            ? b
+            : a.price! < b.price!
+                ? a
+                : b);
+
+    parkingList.remove(choice);
+
+    return {
+      'choice': choice,
+      'parkings': parkingList,
+    };
+  }
+
+  Future<Map<String, dynamic>> fetchNearParkings(double lat, double lon) async {
+    Map<String, dynamic> res;
+    try {
+      res = await _fetchNearParkingsRepository(lat, lon);
+    } catch (e) {
+      print(e);
+      res = await _fetchNearParkingsAPI(lat, lon);
+    }
+    if (res.isEmpty) {
+      return {'choice': Parking.notFound, 'parkings': List<Parking>.empty()};
+    }
+    return res;
   }
 
   TextEditingController dateInput = TextEditingController();
@@ -68,14 +125,14 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
     Trace fetchNearParkingsTrace =
         FirebasePerformance.instance.newTrace("fetch_near_parkings_duration");
     await fetchNearParkingsTrace.start();
-    fetchNearParkings(latitude, longitude).then((dir) async {
-      var res = jsonDecode(dir.body);
-      setState(() {
-        choice = res['choice'];
-        res.remove("choice");
-        parkings = res;
-      });
+
+    var fetchResult = await fetchNearParkings(latitude, longitude);
+
+    setState(() {
+      choice = fetchResult['choice'];
+      parkings = fetchResult['parkings'];
     });
+
     await fetchNearParkingsTrace.stop();
   }
 
@@ -87,20 +144,19 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
     );
     List<Marker> markers = [];
 
-    if (choice["name"] != null) {
+    if (choice.isNotEmpty && choice != Parking.notFound) {
       choosed = Marker(
-        markerId: MarkerId(choice["name"]),
-        position: LatLng(choice["coordinates"]["latitude"],
-            choice["coordinates"]["longitude"]),
+        markerId: MarkerId(choice.name!),
+        position:
+            LatLng(choice.coordinates!.latitude, choice.coordinates!.longitude),
       );
 
-      for (String key in parkings.keys) {
-        var parking = parkings[key];
+      for (Parking parking in parkings) {
         markers.add(
           Marker(
-            markerId: MarkerId(parking["name"]),
-            position: LatLng(parking["coordinates"]["latitude"],
-                parking["coordinates"]["longitude"]),
+            markerId: MarkerId(parking.name!),
+            position: LatLng(
+                parking.coordinates!.latitude, parking.coordinates!.longitude),
           ),
         );
       }
@@ -141,48 +197,57 @@ class ListOfParkingLots extends StatelessWidget {
     required this.parkings,
   });
 
-  final Map choice;
-  final Map parkings;
+  final Parking choice;
+  final List<Parking> parkings;
 
   @override
   Widget build(BuildContext context) {
     List<TileParkings> t_parking = [];
 
-    for (String key in parkings.keys) {
-      var parking = parkings[key];
+    for (Parking parking in parkings) {
       t_parking.add(
         TileParkings(
-            uid: key,
-            name: parking["name"],
-            numberSpots: parking["availabilityCars"].toString(),
-            price: parking["price"].toString(),
-            distance: parking["distance"].toString(),
+            uid: parking.id,
+            name: parking.name!,
+            numberSpots: parking.carSpotsAvailable!.toString(),
+            price: parking.price!.toString(),
+            // TODO: Get current location for real
+            distance: Haversine.haversine(
+                    0.0,
+                    0.0,
+                    parking.coordinates!.latitude,
+                    parking.coordinates!.longitude)
+                .toString(),
             colorText: colorB3,
             waitTime: ""),
       );
     }
 
-    return Expanded(
-      flex: 2,
-      child: Material(
-        child: Container(
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: 380.0,
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  ChoiceParking(choice: choice),
-                  for (TileParkings i in t_parking) i,
-                ],
+    return choice.isEmpty
+        ? const CircularProgressIndicator()
+        : Expanded(
+            flex: 2,
+            child: Material(
+              child: Container(
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: 380.0,
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        choice == Parking.notFound
+                            ? const Center(child: Text('No parkings found'))
+                            : ChoiceParking(choice: choice),
+                        for (TileParkings i in t_parking) i,
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
+          );
   }
 }
 
@@ -192,7 +257,7 @@ class ChoiceParking extends StatelessWidget {
     required this.choice,
   });
 
-  final Map choice;
+  final Parking choice;
 
   @override
   Widget build(BuildContext context) {
@@ -208,18 +273,38 @@ class ChoiceParking extends StatelessWidget {
         colorText: colorB3,
         waitTime: "");
 
-    if (choice["price_match"] != null) {
-      if (choice["price_match"]) {
-        info.add(const TabInfo(text: 'Price Match', colorTab: Colors.green));
-        choosed = TileParkings(
-            uid: choice["uid"],
-            name: choice["name"],
-            numberSpots: choice["availabilityCars"].toString(),
-            price: choice["price"].toString(),
-            distance: choice["distance"].toString(),
-            colorText: colorB3,
-            waitTime: "");
-      }
+    if (choice == Parking.notFound) {
+      choosed = TileParkings(
+        uid: "0",
+        name: "No parkings found",
+        numberSpots: "0",
+        price: "0",
+        distance: "0",
+        colorText: colorB3,
+        waitTime: "",
+      );
+    }
+
+    if (choice.isNotEmpty && choice != Parking.notFound) {
+      // TODO: Restore this feature
+      // if (choice["price_match"]) {
+      info.add(const TabInfo(text: 'Price Match', colorTab: Colors.green));
+      choosed = TileParkings(
+        uid: choice.id,
+        name: choice.name!,
+        numberSpots: choice.carSpotsAvailable!.toString(),
+        price: choice.price!.toString(),
+        distance: Haversine.haversine(
+                // TODO: Get current location for real
+                0.0,
+                0.0,
+                choice.coordinates!.latitude,
+                choice.coordinates!.longitude)
+            .toString(),
+        colorText: colorB3,
+        waitTime: "",
+      );
+      // }
     }
 
     return Column(

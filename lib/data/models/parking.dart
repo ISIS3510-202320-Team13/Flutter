@@ -36,8 +36,8 @@ class Parking extends Equatable {
       : id = uid,
         name = json['name'],
         price = parseDouble(json['price']),
-        carSpotsAvailable = parseInt(json['carSpotsAvailable']),
-        motorSpotsAvailable = parseInt(json['motorSpotsAvailable']),
+        carSpotsAvailable = parseInt(json['availabilityCars']),
+        motorSpotsAvailable = parseInt(json['availabilityMotorcycle']),
         coordinates = json['coordinates'],
         rating = parseDouble(json['rating']);
 
@@ -45,8 +45,8 @@ class Parking extends Equatable {
     final parkingDocument = <String, dynamic>{
       'name': name,
       'price': price,
-      'carSpotsAvailable': carSpotsAvailable,
-      'motorSpotsAvailable': motorSpotsAvailable,
+      'availabilityCars': carSpotsAvailable,
+      'availabilityMotorcycle': motorSpotsAvailable,
       'location': coordinates,
       'rating': rating,
     };
@@ -55,6 +55,7 @@ class Parking extends Equatable {
   }
 
   static const empty = Parking(id: '');
+  static const notFound = Parking(id: '', name: 'Parkings not found');
 
   bool get isEmpty => this == Parking.empty;
   bool get isNotEmpty => this != Parking.empty;

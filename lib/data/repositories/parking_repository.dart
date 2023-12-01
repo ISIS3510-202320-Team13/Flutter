@@ -33,7 +33,7 @@ class ParkingRepository {
   Future<Parking> updateParkingAvailability(
       Parking parking, int deltaSpots) async {
     Map<String, dynamic> parkingDoc = parking.toDocument();
-    parkingDoc['carSpotsAvailable'] = parking.carSpotsAvailable! + deltaSpots;
+    parkingDoc['availabilityCars'] = parking.carSpotsAvailable! + deltaSpots;
     return await _db
         .collection(parkingCollPath)
         .doc(parking.id)
@@ -41,15 +41,14 @@ class ParkingRepository {
         .then((_) => Parking.fromJson(parking.id, parkingDoc));
   }
 
-  Future<List<Parking>> getNearParkings(GeoPoint location) async {
+  Future<List<Parking>> getNearParkings(
+      double latitude, double longitude) async {
     return await _db
         .collection(parkingCollPath)
         .where('coordinates',
-            isLessThanOrEqualTo:
-                GeoPoint(location.latitude + 0.01, location.longitude + 0.01))
+            isLessThanOrEqualTo: GeoPoint(latitude + 0.01, longitude + 0.01))
         .where('coordinates',
-            isGreaterThanOrEqualTo:
-                GeoPoint(location.latitude - 0.01, location.longitude - 0.01))
+            isGreaterThanOrEqualTo: GeoPoint(latitude - 0.01, longitude - 0.01))
         .get()
         .then((value) =>
             value.docs.map((e) => Parking.fromJson(e.id, e.data())).toList());
