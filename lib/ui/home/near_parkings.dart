@@ -235,7 +235,6 @@ class ListOfParkingLots extends StatelessWidget {
             name: parking.name!,
             numberSpots: parking.carSpotsAvailable!.toString(),
             price: parking.price!.toString(),
-            // TODO: Get current location for real
             distance: Haversine.haversine(
                     userLatitude,
                     userLongitude,
@@ -311,8 +310,6 @@ class ChoiceParking extends StatelessWidget {
     }
 
     if (choice.isNotEmpty && choice != Parking.notFound) {
-      // TODO: Restore this feature
-      // if (choice["price_match"]) {
       Position userPosition;
       var locationState = BlocProvider.of<LocationBloc>(context).state;
       if (locationState is LocationLoadSuccess) {
@@ -328,7 +325,6 @@ class ChoiceParking extends StatelessWidget {
         numberSpots: choice.carSpotsAvailable!.toString(),
         price: choice.price!.toString(),
         distance: Haversine.haversine(
-                // TODO: Get current location for real
                 userPosition.latitude,
                 userPosition.longitude,
                 choice.coordinates!.latitude,
