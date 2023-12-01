@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:parkez/data/models/reservations/parking.dart';
+import 'package:parkez/data/models/parking.dart';
 import 'package:parkez/data/models/reservations/payment.dart';
 import 'package:parkez/data/models/reservations/reservation.dart';
 import 'package:parkez/data/repositories/reservation_repository.dart';

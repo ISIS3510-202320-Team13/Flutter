@@ -4,7 +4,7 @@ import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:parkez/data/models/reservations/parking.dart';
+import 'package:parkez/data/models/parking.dart';
 
 import 'package:parkez/ui/utils/file_reader.dart';
 import 'package:parkez/ui/theme/theme_constants.dart';

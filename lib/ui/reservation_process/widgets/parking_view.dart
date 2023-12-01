@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parkez/data/models/reservations/parking.dart';
+import 'package:parkez/data/models/parking.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 
 class ParkingDetailsView extends StatelessWidget {
