@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parkez/data/models/reservations/parking.dart';
+import 'package:parkez/data/models/parking.dart';
 import 'package:parkez/ui/utils/helper_widgets.dart';
 
 class ParkingDetailsView extends StatelessWidget {
@@ -43,11 +43,12 @@ class ParkingDetailsView extends StatelessWidget {
                 const SizedBox(height: 5.0),
                 itemDefinition('Price', "${_parking.price!}/min"),
                 const SizedBox(height: 5.0),
+                // TODO: Calculate distance somewhere
                 itemDefinition(
-                    'Distance', "${_parking.distance ?? '200 '} mts"),
+                    'Distance', "${_parking.coordinates ?? '200 '} mts"),
                 const SizedBox(height: 5.0),
                 itemDefinition(
-                    'Spots Available', "${_parking.spotsAvailable!}"),
+                    'Spots Available', "${_parking.carSpotsAvailable!}"),
               ],
             ),
           ),

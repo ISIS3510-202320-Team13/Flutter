@@ -118,8 +118,10 @@ class _HomePageState extends State<HomePage> {
 
   void _onHomeCreated() {
     getUserCurrentLocation().then((value) async {
-      latitude = value.latitude;
-      longitude = value.longitude;
+      setState(() {
+        latitude = value.latitude;
+        longitude = value.longitude;
+      });
       fetchDir(latitude, longitude).then((dir) async {
         var res = jsonDecode(dir.body)["loc"];
         print(res);

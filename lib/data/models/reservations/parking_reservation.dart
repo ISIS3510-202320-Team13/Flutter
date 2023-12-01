@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:parkez/data/models/reservations/parking.dart';
+import 'package:parkez/data/models/parking.dart';
 import 'package:parkez/data/models/reservations/payment.dart';
 import 'package:parkez/data/models/reservations/reservation.dart';
 

@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_performance/firebase_performance.dart';
-import 'package:parkez/data/models/reservations/parking.dart';
+import 'package:parkez/data/models/parking.dart';
 import 'package:parkez/data/models/reservations/payment.dart';
 import 'package:parkez/data/models/reservations/reservation.dart';
 import 'package:parkez/logic/reservation/reservation_controller.dart';
