@@ -185,10 +185,11 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
                 }
               },
               child: ListOfParkingLots(
-                  parkings: parkings,
-                  choice: choice,
-                  userLatitude: latitude,
-                  userLongitude: longitude),
+                parkings: parkings,
+                choice: choice,
+                userLatitude: latitude != 0.0 ? latitude : widget.latitude,
+                userLongitude: longitude != 0.0 ? longitude : widget.longitude,
+              ),
             ),
             Expanded(
               child: GoogleMap(
