@@ -40,4 +40,18 @@ class ParkingRepository {
         .update(parkingDoc)
         .then((_) => Parking.fromJson(parking.id, parkingDoc));
   }
+
+  Future<List<Parking>> getNearParkings(GeoPoint location) async {
+    return await _db
+        .collection(parkingCollPath)
+        .where('coordinates',
+            isLessThanOrEqualTo:
+                GeoPoint(location.latitude + 0.01, location.longitude + 0.01))
+        .where('coordinates',
+            isGreaterThanOrEqualTo:
+                GeoPoint(location.latitude - 0.01, location.longitude - 0.01))
+        .get()
+        .then((value) =>
+            value.docs.map((e) => Parking.fromJson(e.id, e.data())).toList());
+  }
 }
