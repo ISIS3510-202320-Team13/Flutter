@@ -4,9 +4,12 @@ import 'package:parkez/ui/utils/helper_widgets.dart';
 
 class ParkingDetailsView extends StatelessWidget {
   final Parking _parking;
+  final double _distance;
 
-  const ParkingDetailsView({super.key, required Parking parking})
-      : _parking = parking;
+  const ParkingDetailsView(
+      {super.key, required Parking parking, required double distance})
+      : _parking = parking,
+        _distance = distance;
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +46,7 @@ class ParkingDetailsView extends StatelessWidget {
                 const SizedBox(height: 5.0),
                 itemDefinition('Price', "${_parking.price!}/min"),
                 const SizedBox(height: 5.0),
-                // TODO: Calculate distance somewhere
-                itemDefinition(
-                    'Distance', "${_parking.coordinates ?? '200 '} mts"),
+                itemDefinition('Distance', "${_distance.round()} mts"),
                 const SizedBox(height: 5.0),
                 itemDefinition(
                     'Spots Available', "${_parking.carSpotsAvailable!}"),

@@ -1,10 +1,14 @@
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parkez/data/models/parking.dart';
 import 'package:parkez/data/repositories/parking_repository.dart';
+import 'package:parkez/data/utils/type_conversions.dart';
 import 'package:parkez/logic/calls/apiCall.dart';
+import 'package:parkez/logic/geolocation/bloc/location_bloc.dart';
 import 'package:parkez/logic/geolocation/harvesine.dart';
 
 import 'package:parkez/ui/theme/theme_constants.dart';
@@ -162,43 +166,64 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
       }
     }
 
-    return Stack(
-      children: [
-        Container(
-            foregroundDecoration: BoxDecoration(
-          color: Colors.white,
-        )),
-        Column(children: [
-          SearchBarWText(),
-          ListOfParkingLots(parkings: parkings, choice: choice),
-          Expanded(
-            child: GoogleMap(
-              zoomControlsEnabled: false,
-              onMapCreated: _onMapCreated,
-              myLocationEnabled: true,
-              initialCameraPosition:
-                  CameraPosition(target: _center, zoom: 15.5),
-              markers: {
-                choosed,
-                for (Marker i in markers) i,
+    return BlocProvider(
+      create: (context) => LocationBloc()..add(const LocationStarted()),
+      child: Stack(
+        children: [
+          Container(
+              foregroundDecoration: BoxDecoration(
+            color: Colors.white,
+          )),
+          Column(children: [
+            SearchBarWText(),
+            BlocListener<LocationBloc, LocationState>(
+              listener: (context, state) {
+                if (state is LocationLoadSuccess) {
+                  latitude = state.position.latitude;
+                  longitude = state.position.longitude;
+                  print("Location updated: $latitude, $longitude");
+                }
               },
+              child: ListOfParkingLots(
+                parkings: parkings,
+                choice: choice,
+                userLatitude: latitude != 0.0 ? latitude : widget.latitude,
+                userLongitude: longitude != 0.0 ? longitude : widget.longitude,
+              ),
             ),
-          ),
-        ]),
-      ],
+            Expanded(
+              child: GoogleMap(
+                zoomControlsEnabled: false,
+                onMapCreated: _onMapCreated,
+                myLocationEnabled: true,
+                initialCameraPosition:
+                    CameraPosition(target: _center, zoom: 15.5),
+                markers: {
+                  choosed,
+                  for (Marker i in markers) i,
+                },
+              ),
+            ),
+          ]),
+        ],
+      ),
     );
   }
 }
 
 class ListOfParkingLots extends StatelessWidget {
-  const ListOfParkingLots({
-    super.key,
-    required this.choice,
-    required this.parkings,
-  });
+  const ListOfParkingLots(
+      {super.key,
+      required this.choice,
+      required this.parkings,
+      required this.userLatitude,
+      required this.userLongitude});
 
   final Parking choice;
   final List<Parking> parkings;
+
+  final double userLatitude;
+  final double userLongitude;
 
   @override
   Widget build(BuildContext context) {
@@ -211,12 +236,12 @@ class ListOfParkingLots extends StatelessWidget {
             name: parking.name!,
             numberSpots: parking.carSpotsAvailable!.toString(),
             price: parking.price!.toString(),
-            // TODO: Get current location for real
             distance: Haversine.haversine(
-                    0.0,
-                    0.0,
+                    userLatitude,
+                    userLongitude,
                     parking.coordinates!.latitude,
                     parking.coordinates!.longitude)
+                .round()
                 .toString(),
             colorText: colorB3,
             waitTime: ""),
@@ -286,8 +311,14 @@ class ChoiceParking extends StatelessWidget {
     }
 
     if (choice.isNotEmpty && choice != Parking.notFound) {
-      // TODO: Restore this feature
-      // if (choice["price_match"]) {
+      Position userPosition;
+      var locationState = BlocProvider.of<LocationBloc>(context).state;
+      if (locationState is LocationLoadSuccess) {
+        userPosition = locationState.position;
+      } else {
+        throw Exception('Failed to load user position');
+      }
+
       info.add(const TabInfo(text: 'Price Match', colorTab: Colors.green));
       choosed = TileParkings(
         uid: choice.id,
@@ -295,11 +326,11 @@ class ChoiceParking extends StatelessWidget {
         numberSpots: choice.carSpotsAvailable!.toString(),
         price: choice.price!.toString(),
         distance: Haversine.haversine(
-                // TODO: Get current location for real
-                0.0,
-                0.0,
+                userPosition.latitude,
+                userPosition.longitude,
                 choice.coordinates!.latitude,
                 choice.coordinates!.longitude)
+            .round()
             .toString(),
         colorText: colorB3,
         waitTime: "",
@@ -440,8 +471,10 @@ class TileParkings extends StatelessWidget {
             context,
             MaterialPageRoute(
                 builder: (context) => ReservationProcessScreen(
-                    selectedParking: Parking.fromChambonada(
-                        uid, name, waitTime, numberSpots, price, distance))),
+                      selectedParking: Parking.fromChambonada(
+                          uid, name, waitTime, numberSpots, price, distance),
+                      parkingDistance: parseDouble(distance) ?? 0.0,
+                    )),
           );
         },
         child: Card(

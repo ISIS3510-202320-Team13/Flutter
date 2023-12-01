@@ -18,10 +18,12 @@ import 'widgets/checkout_view.dart';
 
 class ReservationProcessScreen extends StatelessWidget {
   final Parking selectedParking;
+  final double parkingDistance;
 
   const ReservationProcessScreen({
     super.key,
     required this.selectedParking,
+    required this.parkingDistance,
   });
 
   @override
@@ -44,14 +46,21 @@ class ReservationProcessScreen extends StatelessWidget {
               ConnectivityCheckBloc()..add(const ConnectivityCheckStarted()),
         )
       ],
-      child: ReservationProcess(selectedParking: selectedParking),
+      child: ReservationProcess(
+        selectedParking: selectedParking,
+        parkingDistance: parkingDistance,
+      ),
     );
   }
 }
 
 class ReservationProcess extends StatefulWidget {
   final Parking selectedParking;
-  ReservationProcess({super.key, required this.selectedParking});
+  final double parkingDistance;
+  ReservationProcess(
+      {super.key,
+      required this.selectedParking,
+      required this.parkingDistance});
 
   @override
   State<ReservationProcess> createState() => _ReservationProcessState();
@@ -154,7 +163,10 @@ class _ReservationProcessState extends State<ReservationProcess> {
                 Step(
                   isActive: _currentStep == ReservationStep.parking,
                   title: const Text(''),
-                  content: ParkingDetailsView(parking: widget.selectedParking),
+                  content: ParkingDetailsView(
+                    parking: widget.selectedParking,
+                    distance: widget.parkingDistance,
+                  ),
                 ),
                 Step(
                     isActive: _currentStep == ReservationStep.reservation,
