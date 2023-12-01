@@ -44,6 +44,7 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
   late final LatLng _center = LatLng(latitude, longitude);
 
   Future<http.Response> fetchNearParkings(double lat, double lon) {
+    // TODO: Failover to parking repository
     return http.get(
         Uri.parse('http://parkez.xyz:8082/parkings/near/bylatlon/$lat/$lon'),
         headers: {"X-API-Key": "my_api_key"});

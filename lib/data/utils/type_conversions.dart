@@ -1,10 +1,22 @@
-double? parseNumber(dynamic numberVal) {
+double? parseDouble(dynamic numberVal) {
   if (numberVal is int) {
     return numberVal.toDouble();
   } else if (numberVal is double) {
     return numberVal;
   } else if (numberVal is String) {
     return double.parse(numberVal);
+  } else {
+    return null;
+  }
+}
+
+int? parseInt(dynamic numberVal) {
+  if (numberVal is int) {
+    return numberVal;
+  } else if (numberVal is double) {
+    return numberVal.toInt();
+  } else if (numberVal is String) {
+    return int.parse(numberVal);
   } else {
     return null;
   }

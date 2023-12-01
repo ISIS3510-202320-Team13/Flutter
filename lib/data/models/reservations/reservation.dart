@@ -43,13 +43,13 @@ class Reservation extends Equatable {
   // Model from http://api.parkez.xyz:8082/docs#/Reservations/post_reservation_reservations_post
   Reservation.fromJson(String uid, Map<String, dynamic> values)
       : id = uid,
-        cost = parseNumber(values['cost']),
+        cost = parseDouble(values['cost']),
         startDatetime = parseDateTime(values['entry_time']),
         endDatetime = parseDateTime(values['exit_time']),
         parkingId = values['parking'],
         status = values['status'],
         userId = values['user'],
-        timeToReserve = parseNumber(values['time_to_reserve'] ?? "");
+        timeToReserve = parseDouble(values['time_to_reserve'] ?? "");
 
   Map<String, dynamic> toDocument() {
     final reservationDocument = <String, dynamic>{
