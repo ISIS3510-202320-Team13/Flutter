@@ -12,7 +12,7 @@ class Haversine {
     double a =
         pow(sin(dLat / 2), 2) + pow(sin(dLon / 2), 2) * cos(lat1) * cos(lat2);
     double c = 2 * asin(sqrt(a));
-    return R * c;
+    return R * c * 1000; // Convert to meters
   }
 
   static double _toRadians(double degree) {

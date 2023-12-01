@@ -14,6 +14,7 @@ import 'package:parkez/data/models/user.dart';
 import 'package:parkez/data/repositories/user_repository.dart';
 
 import 'package:parkez/logic/auth/bloc/authentication_bloc.dart';
+import 'package:parkez/logic/geolocation/bloc/location_bloc.dart';
 import 'package:parkez/ui/home/near_parkings.dart';
 import 'package:parkez/ui/home/show_parkingList.dart';
 import 'package:parkez/ui/utils/file_reader.dart';
