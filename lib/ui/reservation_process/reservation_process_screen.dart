@@ -92,7 +92,7 @@ class _ReservationProcessState extends State<ReservationProcess> {
               onStepCancel: () {
                 print("CANCEL REQUESTED");
                 BlocProvider.of<ParkingReservationBloc>(context)
-                    .add(ParkingReservationCancelRequested());
+                    .add(ParkingReservationCancelRequested(_currentStep));
               },
               onStepContinue: () {
                 print("ON STEP CONTINUE");
