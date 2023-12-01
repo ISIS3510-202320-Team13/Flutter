@@ -45,7 +45,7 @@ class ParkingDetailsView extends StatelessWidget {
                 const SizedBox(height: 5.0),
                 // TODO: Calculate distance somewhere
                 itemDefinition(
-                    'Distance', "${_parking.location ?? '200 '} mts"),
+                    'Distance', "${_parking.coordinates ?? '200 '} mts"),
                 const SizedBox(height: 5.0),
                 itemDefinition(
                     'Spots Available', "${_parking.carSpotsAvailable!}"),

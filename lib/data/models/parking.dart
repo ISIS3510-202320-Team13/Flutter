@@ -10,7 +10,7 @@ class Parking extends Equatable {
   final double? price;
   final int? carSpotsAvailable;
   final int? motorSpotsAvailable;
-  final GeoPoint? location;
+  final GeoPoint? coordinates;
   final double? rating;
 
   const Parking({
@@ -19,7 +19,7 @@ class Parking extends Equatable {
     this.price,
     this.carSpotsAvailable,
     this.motorSpotsAvailable,
-    this.location,
+    this.coordinates,
     this.rating,
   });
 
@@ -29,7 +29,7 @@ class Parking extends Equatable {
         price = double.tryParse(price),
         carSpotsAvailable = int.parse(numberSpots),
         motorSpotsAvailable = 0,
-        location = null,
+        coordinates = null,
         rating = 0;
 
   Parking.fromJson(String uid, Map<String, dynamic> json)
@@ -38,7 +38,7 @@ class Parking extends Equatable {
         price = parseDouble(json['price']),
         carSpotsAvailable = parseInt(json['carSpotsAvailable']),
         motorSpotsAvailable = parseInt(json['motorSpotsAvailable']),
-        location = json['location'],
+        coordinates = json['coordinates'],
         rating = parseDouble(json['rating']);
 
   Map<String, dynamic> toDocument() {
@@ -47,7 +47,7 @@ class Parking extends Equatable {
       'price': price,
       'carSpotsAvailable': carSpotsAvailable,
       'motorSpotsAvailable': motorSpotsAvailable,
-      'location': location,
+      'location': coordinates,
       'rating': rating,
     };
 
@@ -66,7 +66,27 @@ class Parking extends Equatable {
         price,
         carSpotsAvailable,
         motorSpotsAvailable,
-        location,
+        coordinates,
         rating
       ];
+
+  Parking copyWith({
+    String? id,
+    String? name,
+    double? price,
+    int? carSpotsAvailable,
+    int? motorSpotsAvailable,
+    GeoPoint? coordinates,
+    double? rating,
+  }) {
+    return Parking(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      carSpotsAvailable: carSpotsAvailable ?? this.carSpotsAvailable,
+      motorSpotsAvailable: motorSpotsAvailable ?? this.motorSpotsAvailable,
+      coordinates: coordinates ?? this.coordinates,
+      rating: rating ?? this.rating,
+    );
+  }
 }
