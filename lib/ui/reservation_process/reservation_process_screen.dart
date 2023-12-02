@@ -15,6 +15,7 @@ import 'package:parkez/ui/utils/helper_widgets.dart';
 
 import 'widgets/payment_view.dart';
 import 'widgets/checkout_view.dart';
+import 'package:parkez/ui/utils/file_reader.dart';
 
 class ReservationProcessScreen extends StatelessWidget {
   final Parking selectedParking;
@@ -75,14 +76,21 @@ class _ReservationProcessState extends State<ReservationProcess> {
   DateTime? _startDatetime;
   double? _duration;
 
+  CounterStorage storage = CounterStorage();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(context, 'Reserve a Parking Spot'),
       body: BlocListener<ParkingReservationBloc, ParkingReservationState>(
         listener: (context, state) {
-          if (state.step == ReservationStep.confirmation ||
-              state.step == ReservationStep.cancelled) {
+          if (state.step == ReservationStep.confirmation) {
+            Navigator.of(context).pop();
+            String map = '{"uid": 0G00vHnZOqV3VOryBewa';
+            storage.writeSimpleFile('R_0G00vHnZOqV3VOryBewa', map);
+            return;
+          }
+          else if (state.step == ReservationStep.cancelled) {
             Navigator.of(context).pop();
             return;
           }
