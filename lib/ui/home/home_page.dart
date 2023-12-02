@@ -125,12 +125,9 @@ class _HomePageState extends State<HomePage> {
       });
       fetchDir(latitude, longitude).then((dir) async {
         var res = jsonDecode(dir.body)["loc"];
-        print(res);
         setState(() {
           fullAdress = '${res["road"]}, ${res["house_number"]}, ${res["city"]}';
-          print(fullAdress);
         });
-        print(fullAdress);
       });
     });
   }
@@ -201,7 +198,6 @@ class _HomePageState extends State<HomePage> {
       } catch (e) {
         res = User.empty.toDocument();
       }
-      print(res);
       userData = User(
         id: user.uid,
         email: res['email'],
@@ -210,7 +206,6 @@ class _HomePageState extends State<HomePage> {
         reservations: res['reservations'],
       );
       userLocalDatabaseImpl.saveUser(userData);
-      print(userData.reservations);
     } else {
       userData = await userLocalDatabaseImpl.getUser();
     }
