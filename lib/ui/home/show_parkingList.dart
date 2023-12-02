@@ -25,7 +25,7 @@ class _ShowParkingList extends State<ShowParkingList> {
 
   late List<Map<String, dynamic>>? parkings;
   bool viewing = false;
-  String uid_res = "";
+  String uid_res = "26ODaAhIdhsKjjCbl4oR";
   CounterStorage storage = CounterStorage();
 
   @override
@@ -83,7 +83,7 @@ class _ShowParkingList extends State<ShowParkingList> {
                       ),
                     ),
                     QrImageView(
-                      data: 'http://api.parkez.xyz/reservations/confirmation/$uid_res',
+                      data: 'http://api.parkez.xyz:8082/reservations/confirmation/$uid_res',
                       version: QrVersions.auto,
                       size: 300,
                       gapless: false,
@@ -159,6 +159,7 @@ class _ShowParkingList extends State<ShowParkingList> {
                             setState(() {
                               viewing = true;
                             });
+                            //ssuidreservation();
                           },
                           child: Card(
                             elevation: 10,
