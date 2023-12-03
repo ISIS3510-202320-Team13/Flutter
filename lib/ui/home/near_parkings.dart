@@ -67,7 +67,6 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
         'parkings': res,
       };
     } catch (e) {
-      print(e);
       throw Exception('Failed to load parkings: ${e.toString()}');
     }
   }
@@ -102,7 +101,6 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
     try {
       res = await _fetchNearParkingsRepository(lat, lon);
     } catch (e) {
-      print(e);
       res = await _fetchNearParkingsAPI(lat, lon);
     }
     if (res.isEmpty) {
