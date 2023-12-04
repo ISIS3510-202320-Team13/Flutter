@@ -14,8 +14,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     on<LocationStarted>(_onStarted);
     on<LocationUpdated>(_onLocationUpdated);
     _locationSubscription = Geolocator.getPositionStream(
-            locationSettings:
-                const LocationSettings(accuracy: LocationAccuracy.medium))
+            locationSettings: const LocationSettings(distanceFilter: 20))
         .listen(
       (position) => add(LocationUpdated(position)),
     );
