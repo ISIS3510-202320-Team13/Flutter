@@ -76,8 +76,6 @@ class _ReservationProcessState extends State<ReservationProcess> {
   DateTime? _startDatetime;
   double? _duration;
 
-  CounterStorage storage = CounterStorage();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,8 +84,6 @@ class _ReservationProcessState extends State<ReservationProcess> {
         listener: (context, state) {
           if (state.step == ReservationStep.confirmation) {
             Navigator.of(context).pop();
-            String map = '{"uid": 0G00vHnZOqV3VOryBewa';
-            storage.writeSimpleFile('R_0G00vHnZOqV3VOryBewa', map);
             return;
           }
           else if (state.step == ReservationStep.cancelled) {

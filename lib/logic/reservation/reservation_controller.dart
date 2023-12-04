@@ -2,9 +2,12 @@ import 'package:parkez/data/models/reservations/reservation.dart';
 import 'package:parkez/data/repositories/reservation_repository.dart';
 import 'package:parkez/data/repositories/user_repository.dart';
 
+import '../../ui/utils/file_reader.dart';
+
 class ReservationController {
   String? parkingId;
   Reservation currentRes;
+  CounterStorage storage = CounterStorage();
 
   final ReservationRepository _reservationRepository;
   final UserRepository _userRepository;
@@ -57,15 +60,17 @@ class ReservationController {
       startDatetime: currentRes.startDatetime,
       endDatetime: currentRes.endDatetime,
       parkingId: parkingId,
-      status: "Reserved",
+      status: "Pending",
       userId: userId,
       timeToReserve: currentRes.timeToReserve,
     );
 
+    Reservation reservationCreated = await _reservationRepository.addReservation(oldRes);
     // 2. Update the parking spot to be reserved
-    // TODO
+    String map = '{"uid": "${reservationCreated.id}", "pid": "${reservationCreated.parkingId}", "entry": "${reservationCreated.startDatetime}"}';
+    storage.writeSimpleFile('last_reservation', map);
 
-    return await _reservationRepository.addReservation(oldRes);
+    return reservationCreated;
   }
 
   void cancelReservation() {
