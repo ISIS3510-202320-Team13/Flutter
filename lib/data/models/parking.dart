@@ -3,8 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'package:parkez/data/utils/type_conversions.dart';
 
 class Parking extends Equatable {
-  // TODO: Add new fields (e.g., address)
-
   final String id;
   final String? name;
   final double? price;
@@ -89,5 +87,18 @@ class Parking extends Equatable {
       coordinates: coordinates ?? this.coordinates,
       rating: rating ?? this.rating,
     );
+  }
+
+  static Parking compareChoiceParking(Parking a, Parking b) {
+    if (a.isEmpty) {
+      return b;
+    } else if (b.isEmpty) {
+      return a;
+    }
+
+    var taRate = a.rating! + ((-1 * a.price!) / 100);
+    var tbRate = b.rating! + ((-1 * b.price!) / 100);
+
+    return taRate > tbRate ? a : b;
   }
 }

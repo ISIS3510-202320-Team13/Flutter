@@ -80,13 +80,7 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
       return {};
     }
 
-    Parking choice = parkingList.reduce((a, b) => b.isEmpty
-        ? a
-        : a.isEmpty
-            ? b
-            : a.price! < b.price!
-                ? a
-                : b);
+    Parking choice = parkingList.reduce(Parking.compareChoiceParking);
 
     parkingList.remove(choice);
 
