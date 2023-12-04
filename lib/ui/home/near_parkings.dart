@@ -67,7 +67,6 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
         'parkings': res,
       };
     } catch (e) {
-      print(e);
       throw Exception('Failed to load parkings: ${e.toString()}');
     }
   }
@@ -102,7 +101,6 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
     try {
       res = await _fetchNearParkingsRepository(lat, lon);
     } catch (e) {
-      print(e);
       res = await _fetchNearParkingsAPI(lat, lon);
     }
     if (res.isEmpty) {
@@ -171,11 +169,12 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
       child: Stack(
         children: [
           Container(
-              foregroundDecoration: BoxDecoration(
+              foregroundDecoration: const BoxDecoration(
             color: Colors.white,
           )),
           Column(children: [
-            SearchBarWText(),
+            const backButton(),
+            const SearchBarWText(),
             BlocListener<LocationBloc, LocationState>(
               listener: (context, state) {
                 if (state is LocationLoadSuccess) {
@@ -206,6 +205,42 @@ class _NearParkinsPageState extends State<NearParkinsPage> {
             ),
           ]),
         ],
+      ),
+    );
+  }
+}
+
+class backButton extends StatelessWidget {
+  const backButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Container(
+        color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 50, 0, 0),
+              child: InkWell(
+                splashColor: colorB3, // Splash color
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: colorB1,
+                    )),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -407,11 +442,11 @@ class SearchBarWText extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 60, 20, 10),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                     child: Text(
                       'Buscar en:',
                       style: TextStyle(
