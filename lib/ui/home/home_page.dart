@@ -174,16 +174,17 @@ class _HomePageState extends State<HomePage> {
     Map<String, dynamic>? reservations = userData.reservations;
 
     // Create a sublist based on the 'status' key
-    List<Map<String, dynamic>>? sublist = reservations?.values
-        .whereType<Map<String, dynamic>>() // Filter out non-maps
-        .where((reservation) => reservation['status'] == 'Active')
-        .toList();
+    List<Map<String, dynamic>>? sublist = reservations?.entries
+        .where((entry) =>
+    entry.value is Map<String, dynamic> &&
+        entry.value['status'] == 'Active' ||
+        entry.value['status'] == 'Pending')
+        .map((entry) {
+      Map<String, dynamic> reservation = Map.from(entry.value);
+      reservation['uid'] = entry.key; // Add the 'uid' key
+      return reservation;
+    }).toList();
 
-    // Add pending reservations to the sublist
-    sublist?.addAll(reservations!.values
-        .whereType<Map<String, dynamic>>() // Filter out non-maps
-        .where((reservation) => reservation['status'] == 'Pending')
-        .toList());
     activeReservations = sublist ?? [];
   }
 
@@ -205,6 +206,7 @@ class _HomePageState extends State<HomePage> {
         picture: res['picture'],
         reservations: res['reservations'],
       );
+      print(userData.reservations);
       userLocalDatabaseImpl.saveUser(userData);
     } else {
       userData = await userLocalDatabaseImpl.getUser();
@@ -218,7 +220,8 @@ class _HomePageState extends State<HomePage> {
     _getUserData();
     Stack settings = Stack();
     if (!setted) {
-      settings = Stack(children: [
+      settings = Stack(
+          children: [
         Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
@@ -444,6 +447,7 @@ class _HomePageState extends State<HomePage> {
                       colorB1: colorB1,
                       colorB2: colorB2,
                       parkingList: activeReservations,
+                      getUserData: _getUserData,
                     ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
@@ -560,12 +564,14 @@ class activeReservationCard extends StatelessWidget {
     required this.colorB2,
     required this.fullAdress,
     required this.parkingList,
+    required this.getUserData,
   });
 
   final Color colorB1;
   final Color colorB2;
   late String fullAdress;
   late List<Map<String, dynamic>> parkingList;
+  final Function() getUserData;
 
   @override
   Widget build(BuildContext context) {
@@ -577,6 +583,7 @@ class activeReservationCard extends StatelessWidget {
           child: InkResponse(
             radius: 350.0,
             onTap: () {
+              getUserData();
               Navigator.push(
                 context,
                 MaterialPageRoute(
