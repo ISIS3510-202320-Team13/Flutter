@@ -114,6 +114,7 @@ class _ShowParkingList extends State<ShowParkingList> {
   @override
   Widget build(BuildContext context) {
     uidreservation();
+    _getUserData();
 
     Stack settings = Stack();
     if (viewing) {
