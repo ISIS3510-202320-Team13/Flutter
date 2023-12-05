@@ -16,7 +16,6 @@ class Activity extends StatelessWidget {
     parkingActivity = parkingActivity?.reversed.toList();
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-
           onPressed: () { Navigator.push(
             context,
             MaterialPageRoute(
@@ -39,42 +38,56 @@ class Activity extends StatelessWidget {
         ),
 
         body:
-              ListView.builder(
-                  itemCount: parkingActivity?.length,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                parkingActivity==null?Container(
+                  height: MediaQuery.of(context).size.height/1.5,
+                  child: const Center(
+                    child: Text('No Activity'),
+                  ),
+                ):
+              Flexible(
+                child: ListView.builder(
+                    itemCount: parkingActivity?.length,
 
-                  itemBuilder: (context, index){
-                    return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 30),
-                        child: Card(
-                            elevation: 0,
-                          child: ListTile(
-                            onTap: () {},
-                            title:
-                            Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                        Text(parkingActivity![index]['parking']['name'].toString()),
-                                        Text(
-                                            parkingActivity?[index]['entry_time']
-                                        ),
-                                  ],
-                                ),
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text('status: ${parkingActivity[index]['status']}'),
-                                ),
-                              ],
-                            ),
+                    itemBuilder: (context, index){
+                      return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 30),
+                          child: Card(
+                              elevation: 0,
+                            child: ListTile(
+                              onTap: () {},
+                              title:
+                              Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                          Text(parkingActivity![index]['parking']['name'].toString()),
+                                          Text(
+                                              parkingActivity?[index]['entry_time']
+                                          ),
+                                    ],
+                                  ),
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text('status: ${parkingActivity[index]['status']}'),
+                                  ),
+                                ],
+                              ),
+                            )
                           )
-                        )
-                    );
-                  }
+                      );
+                    }
+                ),
               ),
 
+    ],
+            )
 
-        );
+    );
+
   }
 
 }
