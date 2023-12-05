@@ -172,6 +172,8 @@ class _HomePageState extends State<HomePage> {
   void _getActiveReservations() {
     // Extract reservations from the data map
     Map<String, dynamic>? reservations = userData.reservations;
+    print('AAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    print(reservations);
 
     // Create a sublist based on the 'status' key
     List<Map<String, dynamic>>? sublist = reservations?.entries

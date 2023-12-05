@@ -49,6 +49,8 @@ class _ShowParkingList extends State<ShowParkingList> {
   void _getActiveReservations() {
     // Extract reservations from the data map
     Map<String, dynamic>? reservations = userData.reservations;
+    print('AAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    print(reservations);
 
     // Create a sublist based on the 'status' key
     List<Map<String, dynamic>>? sublist = reservations?.entries
@@ -174,6 +176,35 @@ class _ShowParkingList extends State<ShowParkingList> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
+                          ElevatedButton(
+                            onPressed: () async {
+                              final connectivityResult = await InternetConnectionChecker().hasConnection;
+                              if (connectivityResult) {
+                                Map<String, dynamic> data = {
+                                  'status': 'Canceled',
+                                };
+                                await apiCall.update('reservations', uid_res, data);
+                                setState(() {
+                                  viewing = false;
+                                  _getUserData();
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                    content: Text("Reservation Cancelled"),
+                                    duration: Duration(seconds: 5)
+                                    )
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("No Internet Connection"),
+                                    duration: Duration(seconds: 5),
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Text('Cancel Reservation'),
+                          ),
                           TextButton(
                             onPressed: () {
                               setState(() {
