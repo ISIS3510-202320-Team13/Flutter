@@ -44,6 +44,8 @@ class _ShowParkingList extends State<ShowParkingList> {
     super.initState();
 
     parkings = widget.parkings;
+    _getUserData();
+    uidreservation();
   }
 
   void _getActiveReservations() {
@@ -114,8 +116,7 @@ class _ShowParkingList extends State<ShowParkingList> {
 
   @override
   Widget build(BuildContext context) {
-    uidreservation();
-    _getUserData();
+
 
     Stack settings = Stack();
     if (viewing) {
