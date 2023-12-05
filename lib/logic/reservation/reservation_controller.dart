@@ -3,11 +3,13 @@ import 'package:parkez/data/repositories/reservation_repository.dart';
 import 'package:parkez/data/repositories/user_repository.dart';
 
 import '../../ui/utils/file_reader.dart';
+import '../calls/apiCall.dart';
 
 class ReservationController {
   String? parkingId;
   Reservation currentRes;
   CounterStorage storage = CounterStorage();
+  ApiCall apiCall = ApiCall();
 
   final ReservationRepository _reservationRepository;
   final UserRepository _userRepository;
@@ -35,6 +37,10 @@ class ReservationController {
 
   void selectReservation({required Reservation reservation}) {
     currentRes = reservation;
+  }
+
+  Future<void> sendEmail(reservationCreated) async {
+    await apiCall.fetch('confirmation/${reservationCreated.id}/');
   }
 
   Future<Reservation> reserveParkingSpot() async {
@@ -69,6 +75,7 @@ class ReservationController {
     // 2. Update the parking spot to be reserved
     String map = '{"uid": "${reservationCreated.id}", "pid": "${reservationCreated.parkingId}", "entry": "${reservationCreated.startDatetime}"}';
     storage.writeSimpleFile('last_reservation', map);
+    sendEmail(reservationCreated);
 
     return reservationCreated;
   }
