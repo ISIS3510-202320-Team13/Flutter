@@ -6,8 +6,8 @@ import 'package:parkez/ui/utils/helper_widgets.dart';
 import 'package:parkez/ui/commonFeatures/settings/settings.dart';
 
 class Profile extends StatelessWidget {
-  late Map<String, dynamic>? user;
-  Profile(Map<String, dynamic> this.user, {super.key});
+  late User? user;
+  Profile({required this.user, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +35,14 @@ class Profile extends StatelessWidget {
 
             CircleAvatar(
               radius: 100,
-              backgroundImage: NetworkImage('${user?['picture']}'),
+              backgroundImage: NetworkImage('${user?.picture}'),
             ),
 
 
 
             Center(
               child: Text(
-                '${user?['name']}',
+                '${user?.name}',
                 style: Theme
                     .of(context)
                     .textTheme
@@ -75,7 +75,7 @@ class Profile extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Activity(user),
+                    builder: (context) => Activity(user: user),
                   ),
                 );
               },

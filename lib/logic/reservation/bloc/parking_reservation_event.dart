@@ -39,4 +39,8 @@ final class ParkingReservationPaymentDetailsSelected
 final class ParkingReservationCheckoutSubmitted
     extends ParkingReservationEvent {}
 
-final class ParkingReservationCancelRequested extends ParkingReservationEvent {}
+final class ParkingReservationCancelRequested extends ParkingReservationEvent {
+  final ReservationStep step;
+
+  const ParkingReservationCancelRequested(this.step);
+}

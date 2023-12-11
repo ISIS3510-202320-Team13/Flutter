@@ -50,13 +50,6 @@ class Settings extends StatelessWidget {
                 style: Theme.of(context).elevatedButtonTheme.style,
                 child: const Text('About ParkEZ'),
               ),
-              verticalSpace(25.0),
-              ElevatedButton(
-                onPressed: () {
-                },
-                style: Theme.of(context).elevatedButtonTheme.style,
-                child: const Text('Sign Out'),
-              ),
             ],
           ),
         )
